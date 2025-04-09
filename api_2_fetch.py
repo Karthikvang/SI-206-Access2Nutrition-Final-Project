@@ -14,7 +14,7 @@ COUNTRY_CODE = 'US'
 YEAR = 2023
 
 #create database
-conn = sqlite3.connect('calendarific.db')
+conn = sqlite3.connect('A2N.db')
 cur = conn.cursor()
 
 
