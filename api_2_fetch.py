@@ -19,13 +19,6 @@ cur = conn.cursor()
 
 
 # Create the countries table
-cur.execute('''
-CREATE TABLE IF NOT EXISTS countries (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    country_code TEXT UNIQUE,
-    country_name TEXT
-)
-''')
 
 # Create the holidays table
 cur.execute('''
@@ -33,9 +26,7 @@ CREATE TABLE IF NOT EXISTS holidays (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT,
     date TEXT,
-    country_id INTEGER,
-    UNIQUE(name, date),
-    FOREIGN KEY(country_id) REFERENCES countries(id)
+    UNIQUE(name, date)
 )
 ''')
 
@@ -48,6 +39,9 @@ conn.close()
 #i made this function to make request to API to fetch holiday data from my API
 #I did this for the US (united states) and chose to look at year 2023
 
+#note for this function above- when I do request make sure to add params when calling base 
+# url the way the example API is within the documentation
+
 def fetch_us_holidays(api_key, year=YEAR, country_code=COUNTRY_CODE):
 #first make parameters for a request
     params = {
@@ -59,15 +53,15 @@ def fetch_us_holidays(api_key, year=YEAR, country_code=COUNTRY_CODE):
     response = requests.get(BASE_URL, params=params)
 #make info a dictionary
     data = response.json()
- # return only the list of holidays from the whole JSON response
+ # return the list of holidays from the whole JSON response
     return data['response']['holidays']
 
-#when I do request make sure to add params when calling base 
-# url the way the example API is within the documentation
+#my goal is to populate my table and i want to make sure i dont have duplicates 
+#need to make sure i limit to 25 each time and 100 overall 
+#overall want to populate the DB table i created
 
 
-#NEXT FUNC: Checks if the country already exists in the 'countries' table.
-#If it doesn’t, it inserts it. Returns the country's ID either way.
+
 
 
 #Inserts up to `limit`(25) number of unique holidays into the database.
@@ -75,6 +69,6 @@ def fetch_us_holidays(api_key, year=YEAR, country_code=COUNTRY_CODE):
 # based on the UNIQUE constraint on (name, date)
 
 
-
+#make dictionary with holiday names as 
 if __name__ == "__main__":
    pass 
