@@ -7,32 +7,28 @@ import requests
 #utilize time
 import time
 
-BASE_URL = 'https://calendarific.com/api/v2'
+BASE_URL = 'https://calendarific.com/api/v2/holidays'
 #API KEY
 API_KEY = 'MVRNRBvAvQwPU7gbpLmAoypbfnrw9SeT'
 COUNTRY_CODE = 'US'
 YEAR = 2023
 
-#create database
-conn = sqlite3.connect('A2N.db')
-cur = conn.cursor()
+#Set up my database and create my holidays table
+def create_database():
+    conn = sqlite3.connect('A2N.db')
+    cur = conn.cursor()
 
+    cur.execute('''
+    CREATE TABLE IF NOT EXISTS holidays (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        date TEXT,
+        UNIQUE(name, date)
+    )
+    ''')
 
-# Create the countries table
-
-# Create the holidays table
-cur.execute('''
-CREATE TABLE IF NOT EXISTS holidays (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT,
-    date TEXT,
-    UNIQUE(name, date)
-)
-''')
-
-# Commit changes and close connection
-conn.commit()
-conn.close()
+    conn.commit()
+    conn.close()
 
 
 
@@ -43,7 +39,7 @@ conn.close()
 # url the way the example API is within the documentation
 
 def fetch_us_holidays(api_key, year=YEAR, country_code=COUNTRY_CODE):
-#first make parameters for a request
+#make parameters for my request
     params = {
         'api_key': api_key,
         'country': country_code,
@@ -53,12 +49,68 @@ def fetch_us_holidays(api_key, year=YEAR, country_code=COUNTRY_CODE):
     response = requests.get(BASE_URL, params=params)
 #make info a dictionary
     data = response.json()
- # return the list of holidays from the whole JSON response
+ #return the list of holidays from the whole JSON response
     return data['response']['holidays']
 
 #my goal is to populate my table and i want to make sure i dont have duplicates 
 #need to make sure i limit to 25 each time and 100 overall 
-#overall want to populate the DB table i created
+
+#this function populates my data into my db
+def insert_holiday_data(holidays, cur, conn, limit = 25):
+    #counter to track how many holidays been inserted
+    inserted = 0
+    #go thru each holiday in list
+    for holiday in holidays:
+        #stop if my limit (of 25) has been reached
+        if inserted >= limit:
+            break
+
+        #this gets name and date of holidays
+        name = holiday['name']
+        date = holiday['date']['iso']
+
+        #check if name and date already in table
+        cur.execute('''
+                    SELECT id FROM holidays WHERE name = ? AND date = ?
+                     ''', (name, date))
+        result = cur.fetchone()
+    #if there is a match then skip (NO DUPLICATES)
+        if result: 
+            continue
+    #insert new non duplicate holiday into table
+        else:
+            cur.execute('''
+                INSERT INTO holidays (name, date)
+                VALUES (?, ?)
+            ''', (name, date))
+    #if inserted then increment counter
+            if cur.rowcount == 1:
+                inserted += 1
+
+    conn.commit()
+    #small print note i have right now to
+    # tell me how many holidays are inserted
+    print(f"{inserted} holidays inserted.")
+
+
+def main():
+    #function to create my db
+    create_database()
+
+    #connect again to insert data
+    conn = sqlite3.connect('A2N.db')
+    cur = conn.cursor()
+
+    #get holidays from the API
+    holidays = fetch_us_holidays(API_KEY)
+
+    #insert up to 25 holidays
+    insert_holiday_data(holidays, cur, conn, limit = 25)
+
+    #dont forget to close connection
+    conn.close()
+    
+
 
 
 
@@ -71,4 +123,4 @@ def fetch_us_holidays(api_key, year=YEAR, country_code=COUNTRY_CODE):
 
 #make dictionary with holiday names as 
 if __name__ == "__main__":
-   pass 
+   main()
