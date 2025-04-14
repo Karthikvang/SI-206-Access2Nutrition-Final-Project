@@ -6,39 +6,52 @@ openweather_key = '6cebbdc5722158ef937fa0f74650b54b'
 
 def get_geocode(city_str):
     limit = 1
-    url = f'''http://api.openweathermap.org/geo/1.0/direct?q={city_str},
-    US-MI,840&limit={limit}&appid={openweather_key}'''
-
+    url = f'''http://api.openweathermap.org/geo/1.0/direct?q={city_str}, MI, USA&limit={limit}&appid={openweather_key}'''
     geocode = requests.get(url).json()
 
     latitude = geocode[0]['lat']
     longitude = geocode[0]['lon']
 
-    latitude = round(latitude, 2)
-    longitude = round(longitude,2)
-
     return (latitude, longitude)
     
 
-def get_summer_data (city):
-    start = '1687665600'
-    end = '1688788800'
-    # url = f'''https://history.openweathermap.org/data/2.5/history/city?
-    # lat={lat}&lon={lon}&type=hour&start={start}&end={end}&appid={openweather_key}'''
-    url = f'''https://history.openweathermap.org/data/2.5/history/city?
-    q={city},US-MI&type=hour&start={start}&end={end}&appid={openweather_key}'''
+def get_summer_data (lat, lon):
+    start = '1719720000' # June 30 2024
+    end = '1720411200' # July 8 2024
+   
+    url = f'https://history.openweathermap.org/data/2.5/history/city?lat={lat}&lon={lon}&type=hour&appid={openweather_key}&start={start}&end={end}'
     response = requests.get(url)
-    print(response.json())
+    return response.json()
 
 
-# def get_winter_data(city_str):
-#     pass
+def get_winter_data(lat, lon):
+    start = '1734843600' # December 22 2024
+    end = '1735362000' # December 28 2024
+
+    url = f'https://history.openweathermap.org/data/2.5/history/city?lat={lat}&lon={lon}&type=hour&appid={openweather_key}&start={start}&end={end}'
+    response = requests.get(url)
+    return response.json()
 
 def main():
+    summer_dict = {}
+    winter_dict = {}
 
-    get_summer_data('Ann Arbor')
-    conn = sqlite3.connect('A2N.db')
-    cur = conn.cursor()
+    # Get geocodes to help API locate city coordinates
+    aa_geocode = get_geocode('Ann Arbor')
+    dt_geocode = get_geocode('Detroit')
+    pc_geocode = get_geocode('Pontiac')
+
+    # Organize returned data into summer & winter dictionaries
+    summer_dict['Ann Arbor'] = get_summer_data(aa_geocode[0], aa_geocode[1])
+    summer_dict['Detroit'] = get_summer_data(dt_geocode[0], dt_geocode[1])
+    summer_dict['Pontiac'] = get_summer_data(pc_geocode[0], pc_geocode[1])
+
+    winter_dict['Ann Arbor'] = get_winter_data(aa_geocode[0], aa_geocode[1])
+    winter_dict['Detroit'] = get_winter_data(dt_geocode[0], dt_geocode[1])
+    winter_dict['Pontiac'] = get_winter_data(pc_geocode[0], pc_geocode[1])
+    
+    # conn = sqlite3.connect('A2N.db')
+    # cur = conn.cursor()
    
 
 if __name__ == "__main__":
