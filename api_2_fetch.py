@@ -11,7 +11,7 @@ BASE_URL = 'https://calendarific.com/api/v2/holidays'
 #API KEY
 API_KEY = 'MVRNRBvAvQwPU7gbpLmAoypbfnrw9SeT'
 COUNTRY_CODE = 'US'
-YEAR = 2023
+YEAR = 2024
 
 #Set up my database and create my holidays table
 def create_database():
