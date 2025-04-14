@@ -17,13 +17,16 @@ def get_geocode(city_str):
     latitude = round(latitude, 2)
     longitude = round(longitude,2)
 
-    return (str(latitude), str(longitude))
+    return (latitude, longitude)
     
 
-def get_summer_data (lat, lon):
-    # Prints the data of whatever city input into the function
+def get_summer_data (city):
+    start = '1687665600'
+    end = '1688788800'
+    # url = f'''https://history.openweathermap.org/data/2.5/history/city?
+    # lat={lat}&lon={lon}&type=hour&start={start}&end={end}&appid={openweather_key}'''
     url = f'''https://history.openweathermap.org/data/2.5/history/city?
-    lat={lat}&lon={lon}&type=hour&start=1687665600&end=1688788800&appid={openweather_key}'''
+    q={city},US-MI&type=hour&start={start}&end={end}&appid={openweather_key}'''
     response = requests.get(url)
     print(response.json())
 
@@ -32,8 +35,8 @@ def get_summer_data (lat, lon):
 #     pass
 
 def main():
-    aa_geocode = get_geocode('Ann Arbor')
-    get_summer_data(aa_geocode[0], aa_geocode[1])
+
+    get_summer_data('Ann Arbor')
     conn = sqlite3.connect('A2N.db')
     cur = conn.cursor()
    
