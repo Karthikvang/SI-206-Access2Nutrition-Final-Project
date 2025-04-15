@@ -20,7 +20,7 @@ def get_recall_data(api_key, start_date, end_date, limit=5):
     base_url = "https://api.fda.gov/food/enforcement.json"
     
     # Build the search query based on the recall initiation date range.
-    search_query = f"recall_initiation_date:[{start_date}+TO+{end_date}]"
+    search_query = f"recall_initiation_date:[{start_date} TO {end_date}]"
     
     params = {
         "api_key": api_key,
@@ -89,7 +89,14 @@ def insert_recall_data(db, data):
 
 def main():
         create_recall_table("A2N.db")
-        insert_recall_data("A2N.db", data)
+
+        summer_data = get_recall_data(API_KEY, "20240630", "20240708", limit=25)
+        if summer_data:
+            insert_recall_data("A2N.db", summer_data)
     
+        winter_data = get_recall_data(API_KEY, "20241222", "20241228", limit=25)
+        if winter_data:
+            insert_recall_data("A2N.db", winter_data)
+
 if __name__ == "__main__":
         main()
