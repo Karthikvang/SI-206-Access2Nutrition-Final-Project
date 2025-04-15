@@ -4,6 +4,12 @@ import datetime
 
 
 openweather_key = '6cebbdc5722158ef937fa0f74650b54b'
+DAY_INCREMENT = 86400
+
+# May 2024
+# July 2024
+# September 2024
+# January 2025
 
 def get_geocode(city_str):
     limit = 1
@@ -14,27 +20,30 @@ def get_geocode(city_str):
     longitude = geocode[0]['lon']
 
     return (latitude, longitude)
+
+
+def get_may_data(lat, lon):
+    start = 1714536000 # May 1 2024 12:00AM
+    end = 1714622400 # May 2 2024 12:00AM
+
+    while int(start) <= int(end):
+
+        # Call data for noon of every day in may
+        url = f'https://history.openweathermap.org/data/2.5/history/city?lat={lat}&lon={lon}&type=hour&appid={openweather_key}&start={str(start)}&end={str(end)}&units=imperial'
+        response = requests.get(url)
+        response = response.json()['list'][9]
+
+        # Change date from unix timestamp into regular calendar date
+        timestamp = response['dt']
+        date = datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
+        response['dt'] = str(date.date())
+
+        # Move on to the next day
+        start += DAY_INCREMENT
+        end += DAY_INCREMENT
+
+    return response
     
-
-def get_summer_data (lat, lon):
-    start = '1719720000' # June 30 2024
-    end = '1720411200' # July 8 2024
-   
-    url = f'https://history.openweathermap.org/data/2.5/history/city?lat={lat}&lon={lon}&type=hour&appid={openweather_key}&start={start}&end={end}&units=imperial'
-    response = requests.get(url)
-
-    print(response.json())
-    return response.json()
-
-
-def get_winter_data(lat, lon):
-    start = '1734843600' # December 22 2024
-    end = '1735362000' # December 28 2024
-
-    url = f'https://history.openweathermap.org/data/2.5/history/city?lat={lat}&lon={lon}&type=hour&appid={openweather_key}&start={start}&end={end}&units=imperial'
-    response = requests.get(url)
-
-    return response.json()
 
 def create_db():
     conn = sqlite3.connect('A2N.db')
@@ -69,13 +78,7 @@ def main():
     pc_geocode = get_geocode('Pontiac')
 
     # Organize returned data into summer & winter dictionaries
-    summer_dict['Ann Arbor'] = get_summer_data(aa_geocode[0], aa_geocode[1])
-    summer_dict['Detroit'] = get_summer_data(dt_geocode[0], dt_geocode[1])
-    summer_dict['Pontiac'] = get_summer_data(pc_geocode[0], pc_geocode[1])
-
-    winter_dict['Ann Arbor'] = get_winter_data(aa_geocode[0], aa_geocode[1])
-    winter_dict['Detroit'] = get_winter_data(dt_geocode[0], dt_geocode[1])
-    winter_dict['Pontiac'] = get_winter_data(pc_geocode[0], pc_geocode[1])
+    get_may_data(aa_geocode[0], aa_geocode[1])
     
     
 
