@@ -87,9 +87,9 @@ def insert_recall_data(db, data):
     conn.commit()
     conn.close()
 
-    def main():
+def main():
         create_recall_table("A2N.db")
         insert_recall_data("A2N.db", data)
     
-    if __name__ == "__main__":
+if __name__ == "__main__":
         main()
