@@ -4,12 +4,8 @@ import datetime
 
 
 openweather_key = '6cebbdc5722158ef937fa0f74650b54b'
-DAY_INCREMENT = 86400
+DAY_INCREMENT = 86400 # Number of seconds in a day, required for incrementing days
 
-# May 2024
-# July 2024
-# September 2024
-# January 2025
 
 def get_geocode(city_str):
     limit = 1
@@ -43,7 +39,76 @@ def get_may_data(lat, lon):
         end += DAY_INCREMENT
 
     return response
+
+
+def get_july_data(lat,lon):
+    start = 1719806400 # July 1 2024 12:00AM
+    end = 1719892800 # July 2 2024 12:00AM
+
+    while int(start) <= int(end):
+
+        # Call data for noon of every day in may
+        url = f'https://history.openweathermap.org/data/2.5/history/city?lat={lat}&lon={lon}&type=hour&appid={openweather_key}&start={str(start)}&end={str(end)}&units=imperial'
+        response = requests.get(url)
+        response = response.json()['list'][9]
+
+        # Change date from unix timestamp into regular calendar date
+        timestamp = response['dt']
+        date = datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
+        response['dt'] = str(date.date())
+
+        # Move on to the next day
+        start += DAY_INCREMENT
+        end += DAY_INCREMENT
+
+    return response
     
+
+def get_september_data(lat,lon):
+    start = 1725163200 # September 1 2024 12:00AM
+    end = 1725249600 # September 2 2024 12:00AM
+
+    while int(start) <= int(end):
+
+        # Call data for noon of every day in may
+        url = f'https://history.openweathermap.org/data/2.5/history/city?lat={lat}&lon={lon}&type=hour&appid={openweather_key}&start={str(start)}&end={str(end)}&units=imperial'
+        response = requests.get(url)
+        response = response.json()['list'][9]
+
+        # Change date from unix timestamp into regular calendar date
+        timestamp = response['dt']
+        date = datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
+        response['dt'] = str(date.date())
+
+        # Move on to the next day
+        start += DAY_INCREMENT
+        end += DAY_INCREMENT
+
+    return response
+
+
+def get_january_data(lat,lon):
+    start = 1735707600 # January 1 2025 12:00AM
+    end = 1735794000 # January 2 2025 12:00AM
+
+    while int(start) <= int(end):
+
+        # Call data for noon of every day in may
+        url = f'https://history.openweathermap.org/data/2.5/history/city?lat={lat}&lon={lon}&type=hour&appid={openweather_key}&start={str(start)}&end={str(end)}&units=imperial'
+        response = requests.get(url)
+        response = response.json()['list'][9]
+
+        # Change date from unix timestamp into regular calendar date
+        timestamp = response['dt']
+        date = datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
+        response['dt'] = str(date.date())
+
+        # Move on to the next day
+        start += DAY_INCREMENT
+        end += DAY_INCREMENT
+
+    return response
+
 
 def create_db():
     conn = sqlite3.connect('A2N.db')
@@ -68,11 +133,12 @@ def insert_seasons (season, cur, conn, limit = 25):
             print(time)
             temp = item['main']['temp']
 
+
 def main():
     summer_dict = {}
     winter_dict = {}
 
-    # Get geocodes to help API locate city coordinates
+    # Get coordinates to help API locate city
     aa_geocode = get_geocode('Ann Arbor')
     dt_geocode = get_geocode('Detroit')
     pc_geocode = get_geocode('Pontiac')
