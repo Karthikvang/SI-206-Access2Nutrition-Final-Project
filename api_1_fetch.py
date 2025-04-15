@@ -1,8 +1,11 @@
 import requests
 import sqlite3
+import datetime
 
 
 openweather_key = '6cebbdc5722158ef937fa0f74650b54b'
+DAY_INCREMENT = 86400 # Number of seconds in a day, required for incrementing days
+
 
 def get_geocode(city_str):
     limit = 1
@@ -13,84 +16,140 @@ def get_geocode(city_str):
     longitude = geocode[0]['lon']
 
     return (latitude, longitude)
+
+
+def get_may_data(lat, lon):
+    start = 1714536000 # May 1 2024 12:00AM
+    end = 1714622400 # May 2 2024 12:00AM
+
+    while int(start) <= int(end):
+
+        # Call data for noon of every day in may
+        url = f'https://history.openweathermap.org/data/2.5/history/city?lat={lat}&lon={lon}&type=hour&appid={openweather_key}&start={str(start)}&end={str(end)}&units=imperial'
+        response = requests.get(url)
+        response = response.json()['list'][9]
+
+        # Change date from unix timestamp into regular calendar date
+        timestamp = response['dt']
+        date = datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
+        response['dt'] = str(date.date())
+
+        # Move on to the next day
+        start += DAY_INCREMENT
+        end += DAY_INCREMENT
+
+    return response
+
+
+def get_july_data(lat,lon):
+    start = 1719806400 # July 1 2024 12:00AM
+    end = 1719892800 # July 2 2024 12:00AM
+
+    while int(start) <= int(end):
+
+        # Call data for noon of every day in may
+        url = f'https://history.openweathermap.org/data/2.5/history/city?lat={lat}&lon={lon}&type=hour&appid={openweather_key}&start={str(start)}&end={str(end)}&units=imperial'
+        response = requests.get(url)
+        response = response.json()['list'][9]
+
+        # Change date from unix timestamp into regular calendar date
+        timestamp = response['dt']
+        date = datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
+        response['dt'] = str(date.date())
+
+        # Move on to the next day
+        start += DAY_INCREMENT
+        end += DAY_INCREMENT
+
+    return response
     
 
-def get_summer_data (lat, lon):
-    start = '1719720000' # June 30 2024
-    end = '1720411200' # July 8 2024
-   
-    url = f'https://history.openweathermap.org/data/2.5/history/city?lat={lat}&lon={lon}&type=hour&appid={openweather_key}&start={start}&end={end}&units=imperial'
-    response = requests.get(url)
+def get_september_data(lat,lon):
+    start = 1725163200 # September 1 2024 12:00AM
+    end = 1725249600 # September 2 2024 12:00AM
 
-    return response.json()
+    while int(start) <= int(end):
+
+        # Call data for noon of every day in may
+        url = f'https://history.openweathermap.org/data/2.5/history/city?lat={lat}&lon={lon}&type=hour&appid={openweather_key}&start={str(start)}&end={str(end)}&units=imperial'
+        response = requests.get(url)
+        response = response.json()['list'][9]
+
+        # Change date from unix timestamp into regular calendar date
+        timestamp = response['dt']
+        date = datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
+        response['dt'] = str(date.date())
+
+        # Move on to the next day
+        start += DAY_INCREMENT
+        end += DAY_INCREMENT
+
+    return response
 
 
-def get_winter_data(lat, lon):
-    start = '1734843600' # December 22 2024
-    end = '1735362000' # December 28 2024
+def get_january_data(lat,lon):
+    start = 1735707600 # January 1 2025 12:00AM
+    end = 1735794000 # January 2 2025 12:00AM
 
-    url = f'https://history.openweathermap.org/data/2.5/history/city?lat={lat}&lon={lon}&type=hour&appid={openweather_key}&start={start}&end={end}&units=imperial'
-    response = requests.get(url)
+    while int(start) <= int(end):
 
-    print(response.json())
-    return response.json()
+        # Call data for noon of every day in may
+        url = f'https://history.openweathermap.org/data/2.5/history/city?lat={lat}&lon={lon}&type=hour&appid={openweather_key}&start={str(start)}&end={str(end)}&units=imperial'
+        response = requests.get(url)
+        response = response.json()['list'][9]
+
+        # Change date from unix timestamp into regular calendar date
+        timestamp = response['dt']
+        date = datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
+        response['dt'] = str(date.date())
+
+        # Move on to the next day
+        start += DAY_INCREMENT
+        end += DAY_INCREMENT
+
+    return response
+
+
+def create_db():
+    conn = sqlite3.connect('A2N.db')
+    cur = conn.cursor()
+
+    # City
+    # Date
+    # Time
+    # Temperature
+
+    cur.execute("""CREATE TABLE IF NOT EXISTS weather (
+                
+                
+                )""")
+
 
 def insert_seasons (season, cur, conn, limit = 25):
-    #counter to track how many holidays been inserted
-    inserted = 0
-    #go thru each holiday in list
+    
     for city in season:
-        #stop if my limit (of 25) has been reached
-        if inserted >= limit:
-            break
+        for item in season[city]['list']:
+            time = item[city]['dt']
+            print(time)
+            temp = item['main']['temp']
 
-        #this gets name and date of holidays
-        name = holiday['name']
-        date = holiday['date']['iso']
-
-        #check if name and date already in table
-        cur.execute('''
-                    SELECT id FROM holidays WHERE name = ? AND date = ?
-                     ''', (name, date))
-        result = cur.fetchone()
-    #if there is a match then skip (NO DUPLICATES)
-        if result: 
-            continue
-    #insert new non duplicate holiday into table
-        else:
-            cur.execute('''
-                INSERT INTO holidays (name, date)
-                VALUES (?, ?)
-            ''', (name, date))
-    #if inserted then increment counter
-            if cur.rowcount == 1:
-                inserted += 1
-
-    conn.commit()
-    #small print note i have right now to
-    # tell me how many holidays are inserted
-    print(f"{inserted} days inserted.")
 
 def main():
     summer_dict = {}
     winter_dict = {}
 
-    # Get geocodes to help API locate city coordinates
+    # Get coordinates to help API locate city
     aa_geocode = get_geocode('Ann Arbor')
     dt_geocode = get_geocode('Detroit')
     pc_geocode = get_geocode('Pontiac')
 
     # Organize returned data into summer & winter dictionaries
-    summer_dict['Ann Arbor'] = get_summer_data(aa_geocode[0], aa_geocode[1])
-    summer_dict['Detroit'] = get_summer_data(dt_geocode[0], dt_geocode[1])
-    summer_dict['Pontiac'] = get_summer_data(pc_geocode[0], pc_geocode[1])
-
-    winter_dict['Ann Arbor'] = get_winter_data(aa_geocode[0], aa_geocode[1])
-    winter_dict['Detroit'] = get_winter_data(dt_geocode[0], dt_geocode[1])
-    winter_dict['Pontiac'] = get_winter_data(pc_geocode[0], pc_geocode[1])
+    get_may_data(aa_geocode[0], aa_geocode[1])
     
-    # conn = sqlite3.connect('A2N.db')
-    # cur = conn.cursor()
+    
+
+    # insert_seasons(summer_dict, cur, conn)
+
    
 
 if __name__ == "__main__":
