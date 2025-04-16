@@ -133,30 +133,56 @@ def get_january_data(lat,lon):
 
     return january_lst
 
-
-def create_db():
-    conn = sqlite3.connect('A2N.db')
-    cur = conn.cursor()
-
-    # City (cannot be primary key)
-    # Date ()
-    # Time (time cannot be primary key)
-    # Temperature 
-
-    cur.execute("""CREATE TABLE IF NOT EXISTS weather (
-                
-                
-                )""")
-
-
-def insert_seasons (season, cur, conn, limit = 25):
+def create_db(cur, conn):
+    cur.execute("""CREATE TABLE IF NOT EXISTS city (id INTEGER PRIMARY KEY AUTOINCREMENT, city_name TEXT) """)
+    cur.execute("CREATE TABLE IF NOT EXISTS months (id INTEGER PRIMARY KEY AUTOINCREMENT, month TEXT)")
+    cur.execute("""CREATE TABLE IF NOT EXISTS temperatures 
+                (id INTEGER PRIMARY KEY AUTOINCREMENT, city_id INTEGER, month_id INTEGER, date TEXT, temp INTEGER, 
+                FOREIGN KEY(city_id) REFERENCES city(id), FOREIGN KEY(month_id) REFERENCES months(id))""")
     
-    for city in season:
-        for item in season[city]['list']:
-            time = item[city]['dt']
-            print(time)
-            temp = item['main']['temp']
+    #conn.commit()
+    #conn.close()
 
+
+def insert_data (month, city, data, cur, conn, limit = 25):
+    inserted = 0
+    for day in data:
+
+        if inserted >= limit:
+            break
+
+        date = day['dt']
+        temp = day['main']['temp']
+
+        cur.execute("""SELECT id FROM city WHERE city_name = ?""", (city,))
+        city_res = cur.fetchone()
+
+        if city_res:
+            continue
+        else:
+            cur.execute("INSERT INTO city(city_name) VALUES (?)", (city,))
+            cur.execute("""SELECT id FROM city WHERE city_name = ?""", (city,))
+            city_res = cur.fetchone()
+            if cur.rowcount == 1:
+                inserted += 1
+
+        cur.execute("""SELECT id FROM months WHERE month = ? """, (month,))
+        month_res = cur.fetchone()
+
+        if month_res:
+            continue
+        else:
+            cur.execute("INSERT INTO months (month) VALUES (?)", (month,))
+            cur.execute("""SELECT id FROM months WHERE month = ? """, (month,))
+            month_res = cur.fetchone()
+            if cur.rowcount == 1:
+                inserted += 1
+
+        cur.execute('''INSERT INTO temperatures (city_id, month_id, date, temp) VALUES (?, ?, ?, ?)'''
+                    , (city_res, month_res, date, temp))
+        
+        #conn.commit()      
+    
 
 def main():
 
@@ -165,18 +191,22 @@ def main():
     dt_geocode = get_geocode('Detroit')
     pc_geocode = get_geocode('Pontiac')
 
-    # Organize returned data into summer & winter dictionaries
-    may = get_may_data(aa_geocode[0], aa_geocode[1])
-    print(f'MAY\n{may}')
-    jan = get_january_data(aa_geocode[0], aa_geocode[1])
-    print(f'JAN\n{jan}')
-    sept = get_september_data(aa_geocode[0], aa_geocode[1])
-    print(f'SEPT\n{sept}')
-    july = get_july_data(aa_geocode[0], aa_geocode[1])
-    print(f'JULY\n{july}')
+    # # Organize returned data into summer & winter dictionaries
+    may_data = get_may_data(aa_geocode[0], aa_geocode[1])
+    # #print(f'MAY\n{may}')
+    # jan = get_january_data(aa_geocode[0], aa_geocode[1])
+    # #print(f'JAN\n{jan}')
+    # sept = get_september_data(aa_geocode[0], aa_geocode[1])
+    # #print(f'SEPT\n{sept}')
+    # july = get_july_data(aa_geocode[0], aa_geocode[1])
+    # #print(f'JULY\n{july}')
+
+    conn = sqlite3.connect('A2N.db')
+    cur = conn.cursor()
+    create_db(cur, conn)
+    insert_data('may', 'Ann Arbor', may_data, cur, conn)
     
 
-    # insert_seasons(summer_dict, cur, conn)
 
    
 
