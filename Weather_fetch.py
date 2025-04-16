@@ -140,12 +140,35 @@ def create_db(cur, conn):
                 (id INTEGER PRIMARY KEY AUTOINCREMENT, city_id INTEGER, month_id INTEGER, date TEXT, temp INTEGER, 
                 FOREIGN KEY(city_id) REFERENCES city(id), FOREIGN KEY(month_id) REFERENCES months(id))""")
     
-    #conn.commit()
-    #conn.close()
+    conn.commit()
 
 
 def insert_data (month, city, data, cur, conn, limit = 25):
     inserted = 0
+    
+    # Load the city name into the database
+    cur.execute("""SELECT id FROM city WHERE city_name = ?""", (city,))
+    city_res = cur.fetchone()
+
+    if city_res:
+        city_res = city_res[0]
+    else:
+        cur.execute("INSERT INTO city(city_name) VALUES (?)", (city,))
+        city_res = cur.lastrowid
+        
+
+    # Load the months into the database
+    cur.execute("""SELECT id FROM months WHERE month = ? """, (month,))
+    month_res = cur.fetchone()
+
+    if month_res:
+        month_res = month_res[0]
+    else:
+        cur.execute("INSERT INTO months (month) VALUES (?)", (month,))
+        month_res = cur.lastrowid
+        
+
+
     for day in data:
         # Break if the number of loaded statements exceeds 25
         if inserted >= limit:
@@ -154,36 +177,15 @@ def insert_data (month, city, data, cur, conn, limit = 25):
         date = day['dt']
         temp = day['main']['temp']
 
-        # Load the city name into the database
-        cur.execute("""SELECT id FROM city WHERE city_name = ?""", (city,))
-        city_res = cur.fetchone()
-
-        if city_res:
-            continue
-        else:
-            cur.execute("INSERT INTO city(city_name) VALUES (?)", (city,))
-            cur.execute("""SELECT id FROM city WHERE city_name = ?""", (city,))
-            city_res = cur.fetchone()
-            if cur.rowcount == 1:
-                inserted += 1
-
-        # Load the months into the database
-        cur.execute("""SELECT id FROM months WHERE month = ? """, (month,))
-        month_res = cur.fetchone()
-
-        if month_res:
-            continue
-        else:
-            cur.execute("INSERT INTO months (month) VALUES (?)", (month,))
-            cur.execute("""SELECT id FROM months WHERE month = ? """, (month,))
-            month_res = cur.fetchone()
-            if cur.rowcount == 1:
-                inserted += 1
-
         # Load the temperature values into the database
-        cur.execute("""INSERT INTO temperatures (city_id, month_id, date, temp) VALUES (?, ?, ?, ?)""",(city_res, month_res, date, temp))
+        cur.execute("""INSERT OR IGNORE INTO temperatures (city_id, month_id, date, temp) 
+                    VALUES (?, ?, ?, ?)""",
+                    (city_res, month_res, date, temp))
         
-        #conn.commit()      
+        inserted += 1
+        conn.commit()
+    
+    print(f'{inserted} row(s) inserted') 
     
 
 def main():
@@ -192,22 +194,86 @@ def main():
     aa_geocode = get_geocode('Ann Arbor')
     dt_geocode = get_geocode('Detroit')
     pc_geocode = get_geocode('Pontiac')
+    print("Geocodes created.\n")
 
     # # Organize returned data into summer & winter dictionaries
     may_data = get_may_data(aa_geocode[0], aa_geocode[1])
-    # #print(f'MAY\n{may}')
-    # jan = get_january_data(aa_geocode[0], aa_geocode[1])
-    # #print(f'JAN\n{jan}')
-    # sept = get_september_data(aa_geocode[0], aa_geocode[1])
-    # #print(f'SEPT\n{sept}')
-    # july = get_july_data(aa_geocode[0], aa_geocode[1])
-    # #print(f'JULY\n{july}')
+    july_data = get_july_data(aa_geocode[0], aa_geocode[1])
+    sept_data = get_september_data(aa_geocode[0], aa_geocode[1])
+    jan_data = get_january_data(aa_geocode[0], aa_geocode[1])
+    print("Ann Arbor API data loaded.\n")
+
+    may_dt = get_may_data(dt_geocode[0], dt_geocode[1])
+    jul_dt = get_july_data(dt_geocode[0], dt_geocode[1])
+    sept_dt= get_september_data(dt_geocode[0], dt_geocode[1])
+    jan_dt = get_january_data(dt_geocode[0], dt_geocode[1])
+    print("Detroit API data loaded.\n")
+
+    may_pc = get_may_data(pc_geocode[0], pc_geocode[1])
+    jul_pc = get_july_data(pc_geocode[0], pc_geocode[1])
+    sept_pc= get_september_data(pc_geocode[0], pc_geocode[1])
+    jan_pc = get_january_data(pc_geocode[0], pc_geocode[1])
+    print("Pontiac API data loaded.\n")
 
     conn = sqlite3.connect('A2N.db')
     cur = conn.cursor()
-    
+    print("Database connection established.\n")
+
     create_db(cur, conn)
-    insert_data('may', 'Ann Arbor', may_data, cur, conn)
+    print("Database tables created.\n")
+
+    # Ann Arbor
+    for i in range(0, len(may_data), 25):
+        batch = may_data[i:i+25]
+        insert_data('may', 'Ann Arbor', batch, cur, conn)
+
+    for i in range(0, len(july_data), 25):
+        batch = july_data[i:i+25]
+        insert_data('july', 'Ann Arbor', batch, cur, conn)
+
+    for i in range(0, len(sept_data), 25):
+        batch = sept_data[i:i+25]
+        insert_data('september', 'Ann Arbor', batch, cur, conn)
+
+    for i in range(0, len(jan_data), 25):
+        batch = jan_data[i:i+25]
+        insert_data('january', 'Ann Arbor', batch, cur, conn)
+
+    # Detroit
+    for i in range(0, len(may_dt), 25):
+        batch = may_dt[i:i+25]
+        insert_data('may', 'Detroit', batch, cur, conn)
+    
+    for i in range(0, len(jul_dt), 25):
+        batch = jul_dt[i:i+25]
+        insert_data('july', 'Detroit', batch, cur, conn)
+
+    for i in range(0, len(sept_dt), 25):
+        batch = sept_dt[i:i+25]
+        insert_data('september', 'Detroit', batch, cur, conn)
+    
+    for i in range(0, len(jan_dt), 25):
+        batch = jan_dt[i:i+25]
+        insert_data('january', 'Detroit', batch, cur, conn)
+
+    # Pontiac
+    for i in range(0, len(may_pc), 25):
+        batch = may_pc[i:i+25]
+        insert_data('may', 'Pontiac', batch, cur, conn)
+    
+    for i in range(0, len(jul_pc), 25):
+        batch = jul_pc[i:i+25]
+        insert_data('july', 'Pontiac', batch, cur, conn)
+    
+    for i in range(0, len(sept_pc), 25):
+        batch = sept_pc[i:i+25]
+        insert_data('september', 'Pontiac', batch, cur, conn)
+    
+    for i in range(0, len(jan_pc), 25):
+        batch = jan_pc[i:i+25]
+        insert_data('january', 'Pontiac', batch, cur, conn)
+
+    print("API data successfully inserted into database.\n")
     
 
 
