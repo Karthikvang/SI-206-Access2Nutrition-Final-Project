@@ -147,13 +147,14 @@ def create_db(cur, conn):
 def insert_data (month, city, data, cur, conn, limit = 25):
     inserted = 0
     for day in data:
-
+        # Break if the number of loaded statements exceeds 25
         if inserted >= limit:
             break
 
         date = day['dt']
         temp = day['main']['temp']
 
+        # Load the city name into the database
         cur.execute("""SELECT id FROM city WHERE city_name = ?""", (city,))
         city_res = cur.fetchone()
 
@@ -166,6 +167,7 @@ def insert_data (month, city, data, cur, conn, limit = 25):
             if cur.rowcount == 1:
                 inserted += 1
 
+        # Load the months into the database
         cur.execute("""SELECT id FROM months WHERE month = ? """, (month,))
         month_res = cur.fetchone()
 
@@ -178,8 +180,8 @@ def insert_data (month, city, data, cur, conn, limit = 25):
             if cur.rowcount == 1:
                 inserted += 1
 
-        cur.execute('''INSERT INTO temperatures (city_id, month_id, date, temp) VALUES (?, ?, ?, ?)'''
-                    , (city_res, month_res, date, temp))
+        # Load the temperature values into the database
+        cur.execute("""INSERT INTO temperatures (city_id, month_id, date, temp) VALUES (?, ?, ?, ?)""",(city_res, month_res, date, temp))
         
         #conn.commit()      
     
@@ -203,6 +205,7 @@ def main():
 
     conn = sqlite3.connect('A2N.db')
     cur = conn.cursor()
+    
     create_db(cur, conn)
     insert_data('may', 'Ann Arbor', may_data, cur, conn)
     
