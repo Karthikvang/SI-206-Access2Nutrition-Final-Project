@@ -18,14 +18,13 @@ def count_holidays_per_month():
                 ''')
     
     results = cur.fetchall()
-    print(f"HERE ARE RESULTS:, {results}")
+    
 
 #loop thru to get all months 
     for month_name, count in results:
         print(f"{month_name}: {count} holidays")
     conn.close()
-
-count_holidays_per_month()
+    return results
 
 def count_recalls_per_month():
     conn = sqlite3.connect('A2N.db')
@@ -34,21 +33,46 @@ def count_recalls_per_month():
     cur.execute(''' 
                 SELECT holiday_months.name,
                 COUNT(*) 
-                FROM holidays
-                JOIN holiday_months ON holiday_months.id = holidays.month_id
-                GROUP BY month_id
+                FROM food_recalls
+                JOIN holiday_months ON holiday_months.id = food_recalls.recall_initiation_month
+                GROUP BY holiday_months.id
                 ;
                 ''')
     
-    results = cur.fetchall()
-    print(f"HERE ARE RESULTS:, {results}")
+    results2 = cur.fetchall()
+    
+    
 
 #loop thru to get all months 
-    for month_name, count in results:
-        print(f"{month_name}: {count} holidays")
+    for month_name, count in results2:
+        print(f"{month_name}: {count} recalls")
     conn.close()
+    return results2
 
-count_holidays_per_month()
+def writer(holidays, recalls):
+     with open("monthly_summary.txt", "w") as f:
+        f.write("Holidays Per Month:\n")
+        for month, count in holidays:
+            f.write(f"{month}: {count} holidays\n")
+
+        f.write("\nFood Recalls Per Month:\n")
+        for month, count in recalls:
+            f.write(f"{month}: {count} recalls\n")
+
+
+
+
+def main():
+    holidays_per_month = count_holidays_per_month()
+    recalls_per_month = count_recalls_per_month()
+
+    writer(holidays_per_month, recalls_per_month)
+
+
+if __name__ == "__main__":
+    main()
+
+
 
 
 

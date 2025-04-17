@@ -1,0 +1,8 @@
+Holidays Per Month:
+January: 23 holidays
+February: 2 holidays
+
+Food Recalls Per Month:
+January: 6 recalls
+February: 9 recalls
+December: 10 recalls
