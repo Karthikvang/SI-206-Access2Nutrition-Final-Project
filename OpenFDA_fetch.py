@@ -47,8 +47,8 @@ def create_recall_table(db):
             reason_for_recall TEXT,
             status TEXT,
             recalling_firm TEXT,
-            product_description TEXT,
-            recall_initiation_date TEXT,
+            product_description TEXT UNIQUE,
+            recall_initiation_month INTEGER,
             state TEXT,
             distribution_pattern TEXT,
             report_date TEXT,
@@ -65,9 +65,9 @@ def insert_recall_data(db, data):
 
     for record in data:
         cur.execute("""
-            INSERT INTO food_recalls (
+            INSERT OR IGNORE INTO food_recalls (
                 recall_number, reason_for_recall, status, recalling_firm,
-                product_description, recall_initiation_date, state,
+                product_description, recall_initiation_month, state,
                 distribution_pattern, report_date, voluntary_mandated
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
@@ -76,7 +76,7 @@ def insert_recall_data(db, data):
             record.get("status"),
             record.get("recalling_firm"),
             record.get("product_description"),
-            record.get("recall_initiation_date"),
+            int(record.get("recall_initiation_date")[4:6]),
             record.get("state"),
             record.get("distribution_pattern"),
             record.get("report_date"),
