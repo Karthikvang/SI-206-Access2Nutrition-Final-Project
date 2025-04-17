@@ -5,6 +5,7 @@ import numpy as np
 conn = sqlite3.connect('A2N.db')
 cur = conn.cursor()
 
+
 def monthly_averages():
     return_dict = {}
     sf_monthly_avg = cur.execute("""SELECT months.month, AVG(temperatures.temp) AS avg_temp
@@ -37,6 +38,7 @@ def monthly_averages():
 
     return return_dict
 
+
 def main():
     city_data = monthly_averages()
 
@@ -44,16 +46,17 @@ def main():
     month_order = ['may', 'july', 'september', 'january']
     cities = list(city_data.keys())
 
+    # Sort the data to match month_order
     city_temps = []
     for city in cities:
-        # Sort the data to match month_order
         sorted_temps = sorted(city_data[city], key=lambda x: month_order.index(x[0]))
         city_temps.append([temp for _, temp in sorted_temps])
 
     # Plot settings
-    x = np.arange(len(month_order))  # positions for months
+    x = np.arange(len(month_order))
     bar_width = 0.2
 
+    # Plot dimensions
     plt.figure(figsize=(12, 6))
 
     # Plot each city’s bars, shifted by bar width
@@ -69,9 +72,7 @@ def main():
     plt.legend(title="City")
     plt.grid(axis='y')
     plt.show()
-            
-
-
-
+  
+        
 if __name__ == "__main__":
     main()
