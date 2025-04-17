@@ -187,10 +187,6 @@ def insert_data (month, city, data, cur, conn, limit = 25):
     
 
 def main():
-    # San Francisco
-    # Detroit
-    # Washington DC
-    # Dallas
 
     # Get coordinates to help API locate city
     sf_geocode = get_geocode('San Francisco')

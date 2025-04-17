@@ -1,7 +1,10 @@
 import sqlite3
+import matplotlib.pyplot as plt
+import numpy as np
 
 conn = sqlite3.connect('A2N.db')
 cur = conn.cursor()
+
 
 def monthly_averages():
     return_dict = {}
@@ -35,8 +38,12 @@ def monthly_averages():
 
     return return_dict
 
+
 def main():
     monthly_averages()
+
+    
+
 
 if __name__ == "__main__":
     main()
