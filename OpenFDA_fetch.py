@@ -90,13 +90,20 @@ def insert_recall_data(db, data):
 def main():
         create_recall_table("A2N.db")
 
-        summer_data = get_recall_data(API_KEY, "20240630", "20240708", limit=25)
-        if summer_data:
-            insert_recall_data("A2N.db", summer_data)
-    
-        winter_data = get_recall_data(API_KEY, "20241222", "20241228", limit=25)
-        if winter_data:
-            insert_recall_data("A2N.db", winter_data)
+        seasons = [
+        ("20241202", "20250301"),  # winter
+        ("20240302", "20240601"),  # spring
+        ("20240602", "20240901"),  # summer
+        ("20240902", "20241201"),  # fall
+    ]
+
+        all_recalls = []
+        for start, end in seasons:
+            batch = get_recall_data(API_KEY, start, end, limit=25)
+            if batch:
+                all_recalls.extend(batch)
+
+        insert_recall_data("A2N.db", all_recalls[:25])
 
 if __name__ == "__main__":
         main()
