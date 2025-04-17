@@ -14,18 +14,28 @@ COUNTRY_CODE = 'US'
 YEAR = 2024
 
 #Set up my database and create my holidays table
+
 def create_database():
     conn = sqlite3.connect('A2N.db')
     cur = conn.cursor()
+
+    # Table for months
+    cur.execute('''
+            CREATE TABLE IF NOT EXISTS holiday_months (
+                id INTEGER PRIMARY KEY,
+                name TEXT
+            )
+        ''')
 
     cur.execute('''
     CREATE TABLE IF NOT EXISTS holidays (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT,
-        date TEXT,
-        UNIQUE(name, date)
+        month_id INTEGER,
+        FOREIGN KEY(month_id) REFERENCES holiday_months(id)
     )
     ''')
+
 
     conn.commit()
     conn.close()
@@ -56,9 +66,34 @@ def fetch_us_holidays(api_key, year=YEAR, country_code=COUNTRY_CODE):
 #need to make sure i limit to 25 each time and 100 overall 
 
 #this function populates my data into my db
+
+#this just sets the months to my int keys 
+def insert_holiday_months(cur, conn, limit = 25):
+    months = [
+        (1, 'January'), (2, 'February'), (3, 'March'), (4, 'April'),
+        (5, 'May'), (6, 'June'), (7, 'July'), (8, 'August'),
+        (9, 'September'), (10, 'October'), (11, 'November'), (12, 'December')
+    ]
+    inserted = 0
+
+    for month_data in months:
+        if inserted >= limit:
+            break
+
+        cur.execute("SELECT id FROM holiday_months WHERE id = ?", (month_data[0],))
+        result = cur.fetchone()
+
+        if not result:
+            cur.execute("INSERT INTO holiday_months (id, name) VALUES (?, ?)", month_data)
+            inserted += 1
+
+    conn.commit()
+    print(f"{inserted} holiday_month rows inserted.")
+
 def insert_holiday_data(holidays, cur, conn, limit = 25):
     #counter to track how many holidays been inserted
     inserted = 0
+    
     #go thru each holiday in list
     for holiday in holidays:
         #stop if my limit (of 25) has been reached
@@ -68,29 +103,29 @@ def insert_holiday_data(holidays, cur, conn, limit = 25):
         #this gets name and date of holidays
         name = holiday['name']
         date = holiday['date']['iso']
+        ##get month as int from the date string (since thats what api originally gives me)
+        month = int(date.split("-")[1])
 
-        #check if name and date already in table
-        cur.execute('''
-                    SELECT id FROM holidays WHERE name = ? AND date = ?
-                     ''', (name, date))
+
+        # Check if this holiday name and month_id combo already exists
+        cur.execute("SELECT id FROM holidays WHERE name = ? AND month_id = ?", (name, month))
         result = cur.fetchone()
-    #if there is a match then skip (NO DUPLICATES)
-        if result: 
-            continue
-    #insert new non duplicate holiday into table
-        else:
-            cur.execute('''
-                INSERT INTO holidays (name, date)
-                VALUES (?, ?)
-            ''', (name, date))
-    #if inserted then increment counter
-            if cur.rowcount == 1:
-                inserted += 1
 
+        if result:
+            continue  # If it exists, skip to the next holiday
+
+        # Otherwise, insert the holiday with its name and month_id
+        cur.execute("INSERT INTO holidays (name, month_id) VALUES (?, ?)", (name, month))
+
+        if cur.rowcount == 1:
+            inserted += 1
+
+    # Commit changes to the database
     conn.commit()
-    #small print note i have right now to
-    # tell me how many holidays are inserted
+
+    # Let the user know how many holidays were inserted
     print(f"{inserted} holidays inserted.")
+
 
 
 def main():
@@ -103,6 +138,9 @@ def main():
 
     #get holidays from the API
     holidays = fetch_us_holidays(API_KEY)
+
+    #insert month info
+    insert_holiday_months(cur, conn, limit=25)
 
     #insert up to 25 holidays
     insert_holiday_data(holidays, cur, conn, limit = 25)
@@ -133,3 +171,6 @@ if __name__ == "__main__":
 
    #see if holidays or seasons have correlation within food recals 
    
+
+
+   #use regex before inserting it to pull just month regex to get middle month numbers then .strip(0)
