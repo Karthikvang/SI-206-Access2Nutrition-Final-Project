@@ -1,0 +1,1 @@
+# For calculating the average temperature for a city for a certain month

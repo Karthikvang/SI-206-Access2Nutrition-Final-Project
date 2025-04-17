@@ -137,7 +137,7 @@ def create_db(cur, conn):
     cur.execute("""CREATE TABLE IF NOT EXISTS city (id INTEGER PRIMARY KEY AUTOINCREMENT, city_name TEXT) """)
     cur.execute("CREATE TABLE IF NOT EXISTS months (id INTEGER PRIMARY KEY AUTOINCREMENT, month TEXT)")
     cur.execute("""CREATE TABLE IF NOT EXISTS temperatures 
-                (id INTEGER PRIMARY KEY AUTOINCREMENT, city_id INTEGER, month_id INTEGER, date TEXT, temp INTEGER, 
+                (id INTEGER PRIMARY KEY AUTOINCREMENT, city_id INTEGER, month_id INTEGER, temp INTEGER, 
                 FOREIGN KEY(city_id) REFERENCES city(id), FOREIGN KEY(month_id) REFERENCES months(id))""")
     
     conn.commit()
@@ -166,8 +166,6 @@ def insert_data (month, city, data, cur, conn, limit = 25):
     else:
         cur.execute("INSERT INTO months (month) VALUES (?)", (month,))
         month_res = cur.lastrowid
-        
-
 
     for day in data:
         # Break if the number of loaded statements exceeds 25
@@ -178,9 +176,9 @@ def insert_data (month, city, data, cur, conn, limit = 25):
         temp = day['main']['temp']
 
         # Load the temperature values into the database
-        cur.execute("""INSERT OR IGNORE INTO temperatures (city_id, month_id, date, temp) 
-                    VALUES (?, ?, ?, ?)""",
-                    (city_res, month_res, date, temp))
+        cur.execute("""INSERT OR IGNORE INTO temperatures (city_id, month_id, temp) 
+                    VALUES (?, ?, ?)""",
+                    (city_res, month_res, temp))
         
         inserted += 1
         conn.commit()
