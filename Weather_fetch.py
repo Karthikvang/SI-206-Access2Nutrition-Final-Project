@@ -187,19 +187,32 @@ def insert_data (month, city, data, cur, conn, limit = 25):
     
 
 def main():
+    # San Francisco
+    # Detroit
+    # Washington DC
+    # Dallas
 
     # Get coordinates to help API locate city
-    aa_geocode = get_geocode('Ann Arbor')
+    sf_geocode = get_geocode('San Francisco')
+    # aa_geocode = get_geocode('Ann Arbor')
+    ny_geocode = get_geocode('New York')
     dt_geocode = get_geocode('Detroit')
-    pc_geocode = get_geocode('Pontiac')
+    dl_geocode = get_geocode('Dallas')
+    # pc_geocode = get_geocode('Pontiac')
     print("Geocodes created.\n")
 
-    # # Organize returned data into summer & winter dictionaries
-    may_data = get_may_data(aa_geocode[0], aa_geocode[1])
-    july_data = get_july_data(aa_geocode[0], aa_geocode[1])
-    sept_data = get_september_data(aa_geocode[0], aa_geocode[1])
-    jan_data = get_january_data(aa_geocode[0], aa_geocode[1])
-    print("Ann Arbor API data loaded.\n")
+    # Organize returned data into summer & winter dictionaries
+    # may_data = get_may_data(aa_geocode[0], aa_geocode[1])
+    # july_data = get_july_data(aa_geocode[0], aa_geocode[1])
+    # sept_data = get_september_data(aa_geocode[0], aa_geocode[1])
+    # jan_data = get_january_data(aa_geocode[0], aa_geocode[1])
+    # print("Ann Arbor API data loaded.\n")
+
+    may_sf = get_may_data(sf_geocode[0], sf_geocode[1])
+    jul_sf = get_july_data(sf_geocode[0], sf_geocode[1])
+    sept_sf = get_september_data(sf_geocode[0], sf_geocode[1])
+    jan_sf = get_january_data(sf_geocode[0], sf_geocode[1])
+    print("San Francisco API data loaded.\n")
 
     may_dt = get_may_data(dt_geocode[0], dt_geocode[1])
     jul_dt = get_july_data(dt_geocode[0], dt_geocode[1])
@@ -207,11 +220,23 @@ def main():
     jan_dt = get_january_data(dt_geocode[0], dt_geocode[1])
     print("Detroit API data loaded.\n")
 
-    may_pc = get_may_data(pc_geocode[0], pc_geocode[1])
-    jul_pc = get_july_data(pc_geocode[0], pc_geocode[1])
-    sept_pc= get_september_data(pc_geocode[0], pc_geocode[1])
-    jan_pc = get_january_data(pc_geocode[0], pc_geocode[1])
-    print("Pontiac API data loaded.\n")
+    may_ny = get_may_data(ny_geocode[0], ny_geocode[1])
+    jul_ny = get_july_data(ny_geocode[0], ny_geocode[1])
+    sept_ny = get_september_data(ny_geocode[0], ny_geocode[1])
+    jan_ny = get_january_data(ny_geocode[0], ny_geocode[1])
+    print("New York API data loaded.\n")
+
+    may_dl = get_may_data(dl_geocode[0], dl_geocode[1])
+    jul_dl = get_july_data(dl_geocode[0], dl_geocode[1])
+    sept_dl = get_september_data(dl_geocode[0], dl_geocode[1])
+    jan_dl = get_january_data(dl_geocode[0], dl_geocode[1])
+    print("Dallas API data loaded.\n")
+
+    # may_pc = get_may_data(pc_geocode[0], pc_geocode[1])
+    # jul_pc = get_july_data(pc_geocode[0], pc_geocode[1])
+    # sept_pc= get_september_data(pc_geocode[0], pc_geocode[1])
+    # jan_pc = get_january_data(pc_geocode[0], pc_geocode[1])
+    # print("Pontiac API data loaded.\n")
 
     conn = sqlite3.connect('A2N.db')
     cur = conn.cursor()
@@ -221,21 +246,38 @@ def main():
     print("Database tables created.\n")
 
     # Ann Arbor
-    for i in range(0, len(may_data), 25):
-        batch = may_data[i:i+25]
-        insert_data('may', 'Ann Arbor', batch, cur, conn)
+    # for i in range(0, len(may_data), 25):
+    #     batch = may_data[i:i+25]
+    #     insert_data('may', 'Ann Arbor', batch, cur, conn)
 
-    for i in range(0, len(july_data), 25):
-        batch = july_data[i:i+25]
-        insert_data('july', 'Ann Arbor', batch, cur, conn)
+    # for i in range(0, len(july_data), 25):
+    #     batch = july_data[i:i+25]
+    #     insert_data('july', 'Ann Arbor', batch, cur, conn)
 
-    for i in range(0, len(sept_data), 25):
-        batch = sept_data[i:i+25]
-        insert_data('september', 'Ann Arbor', batch, cur, conn)
+    # for i in range(0, len(sept_data), 25):
+    #     batch = sept_data[i:i+25]
+    #     insert_data('september', 'Ann Arbor', batch, cur, conn)
 
-    for i in range(0, len(jan_data), 25):
-        batch = jan_data[i:i+25]
-        insert_data('january', 'Ann Arbor', batch, cur, conn)
+    # for i in range(0, len(jan_data), 25):
+    #     batch = jan_data[i:i+25]
+    #     insert_data('january', 'Ann Arbor', batch, cur, conn)
+
+    # San Francisco
+    for i in range(0, len(may_sf), 25):
+        batch = may_sf[i:i+25]
+        insert_data('may', 'San Francisco', batch, cur, conn)
+    
+    for i in range(0, len(jul_sf), 25):
+        batch = jul_sf[i:i+25]
+        insert_data('july', 'San Francisco', batch, cur, conn)
+
+    for i in range(0, len(sept_sf), 25):
+        batch = sept_sf[i:i+25]
+        insert_data('september', 'San Francisco', batch, cur, conn)
+    
+    for i in range(0, len(jan_sf), 25):
+        batch = jan_sf[i:i+25]
+        insert_data('january', 'San Francisco', batch, cur, conn)
 
     # Detroit
     for i in range(0, len(may_dt), 25):
@@ -254,22 +296,57 @@ def main():
         batch = jan_dt[i:i+25]
         insert_data('january', 'Detroit', batch, cur, conn)
 
+
+    # Washington DC
+    for i in range(0, len(may_ny), 25):
+        batch = may_ny[i:i+25]
+        insert_data('may', 'New York', batch, cur, conn)
+    
+    for i in range(0, len(jul_ny), 25):
+        batch = jul_ny[i:i+25]
+        insert_data('july', 'New York', batch, cur, conn)
+
+    for i in range(0, len(sept_ny), 25):
+        batch = sept_ny[i:i+25]
+        insert_data('september', 'New York', batch, cur, conn)
+    
+    for i in range(0, len(jan_ny), 25):
+        batch = jan_ny[i:i+25]
+        insert_data('january', 'New York', batch, cur, conn)
+
+    # Dallas
+    for i in range(0, len(may_dl), 25):
+        batch = may_dl[i:i+25]
+        insert_data('may', 'Dallas', batch, cur, conn)
+    
+    for i in range(0, len(jul_dl), 25):
+        batch = jul_dl[i:i+25]
+        insert_data('july', 'Dallas', batch, cur, conn)
+
+    for i in range(0, len(sept_dl), 25):
+        batch = sept_dl[i:i+25]
+        insert_data('september', 'Dallas', batch, cur, conn)
+    
+    for i in range(0, len(jan_dl), 25):
+        batch = jan_dl[i:i+25]
+        insert_data('january', 'Dallas', batch, cur, conn)
+
     # Pontiac
-    for i in range(0, len(may_pc), 25):
-        batch = may_pc[i:i+25]
-        insert_data('may', 'Pontiac', batch, cur, conn)
+    # for i in range(0, len(may_pc), 25):
+    #     batch = may_pc[i:i+25]
+    #     insert_data('may', 'Pontiac', batch, cur, conn)
     
-    for i in range(0, len(jul_pc), 25):
-        batch = jul_pc[i:i+25]
-        insert_data('july', 'Pontiac', batch, cur, conn)
+    # for i in range(0, len(jul_pc), 25):
+    #     batch = jul_pc[i:i+25]
+    #     insert_data('july', 'Pontiac', batch, cur, conn)
     
-    for i in range(0, len(sept_pc), 25):
-        batch = sept_pc[i:i+25]
-        insert_data('september', 'Pontiac', batch, cur, conn)
+    # for i in range(0, len(sept_pc), 25):
+    #     batch = sept_pc[i:i+25]
+    #     insert_data('september', 'Pontiac', batch, cur, conn)
     
-    for i in range(0, len(jan_pc), 25):
-        batch = jan_pc[i:i+25]
-        insert_data('january', 'Pontiac', batch, cur, conn)
+    # for i in range(0, len(jan_pc), 25):
+    #     batch = jan_pc[i:i+25]
+    #     insert_data('january', 'Pontiac', batch, cur, conn)
 
     print("API data successfully inserted into database.\n")
     

@@ -1,7 +1,6 @@
 import requests
 import sqlite3
 
-
 API_KEY = "xmlDEL0okHlfnLCqKDM4Pj0LhxeE2u44lZ6dnh1O"
 
 def get_recall_data(api_key, start_date, end_date, limit=5):
