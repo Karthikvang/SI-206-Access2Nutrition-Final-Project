@@ -124,3 +124,12 @@ def main():
 #make dictionary with holiday names as 
 if __name__ == "__main__":
    main()
+
+
+
+   #get number of holidays per month(4)
+   #get number of recalls during month 
+
+
+   #see if holidays or seasons have correlation within food recals 
+   
