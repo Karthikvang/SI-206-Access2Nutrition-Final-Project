@@ -1,8 +1,9 @@
-import matplotlib
-import matplotlib.pyplot as plt
-from  process_data_do_calculations import *
 
-def main():
+import matplotlib.pyplot as plt
+from calculations import *
+
+
+def weather_visualizations():
     city_data = monthly_averages()
     
     # Create graph for temperatures across cities
@@ -35,5 +36,8 @@ def main():
     plt.legend(title="City")
     plt.grid(axis='y')
     plt.show()
+
+
+  
 if __name__ == "__main__":
     main()
