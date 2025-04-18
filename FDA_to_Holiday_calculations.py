@@ -1,5 +1,6 @@
 #anna is working in here 
 import sqlite3
+import json
 
 #join the holidays and holiday_months tables
 #groups the holidays by month
@@ -20,11 +21,8 @@ def count_holidays_per_month():
     results = cur.fetchall()
     
 
-#loop thru to get all months 
-    for month_name, count in results:
-        print(f"{month_name}: {count} holidays")
     conn.close()
-    return results
+    return {month: count for month, count in results}
 
 def count_recalls_per_month():
     conn = sqlite3.connect('A2N.db')
@@ -40,24 +38,22 @@ def count_recalls_per_month():
                 ''')
     
     results2 = cur.fetchall()
-    
-    
-
-#loop thru to get all months 
-    for month_name, count in results2:
-        print(f"{month_name}: {count} recalls")
     conn.close()
-    return results2
+    return {month: count for month, count in results2}
+    
+    
 
 def writer(holidays, recalls):
-     with open("monthly_summary.txt", "w") as f:
-        f.write("Holidays Per Month:\n")
-        for month, count in holidays:
-            f.write(f"{month}: {count} holidays\n")
+    data = {
+        "holidays": holidays,
+        "recalls": recalls
+    }
 
-        f.write("\nFood Recalls Per Month:\n")
-        for month, count in recalls:
-            f.write(f"{month}: {count} recalls\n")
+    with open("monthly_data.json", "w") as f:
+        #json dump writes to the file
+        json.dump(data, f, indent=4)
+
+    
 
 
 
