@@ -1,0 +1,1 @@
+#check what visualizations they did in lecture so i made sure ours arent too similar 

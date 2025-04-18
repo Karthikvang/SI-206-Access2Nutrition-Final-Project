@@ -165,12 +165,6 @@ if __name__ == "__main__":
 
 
 
-   #get number of holidays per month(4) May, July,      September, Jan
-   #get number of recalls during month 
 
 
-   #see if holidays or seasons have correlation within food recals 
    
-
-
-   #use regex before inserting it to pull just month regex to get middle month numbers then .strip(0)
