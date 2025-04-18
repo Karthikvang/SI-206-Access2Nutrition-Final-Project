@@ -1,8 +1,45 @@
-import matplotlib
 import matplotlib.pyplot as plt
-from  process_data_do_calculations import *
+import numpy as np
+from calculations import *
 
-def main():
+# JOSEPH
+
+def fda_recalls_visualizations():
+    data = fetch_recalls_by_region_month('A2N.db')
+
+    seasons = ['Winter', 'Spring', 'Summer', 'Fall']
+    regions = ['East', 'Central', 'Midwest', 'West']
+
+    # Color code regions based on vibe
+    region_colors = {
+        'East': 'gold',
+        'Central': 'gray',
+        'Midwest': 'darkorange',
+        'West': 'royalblue'
+    }
+
+    # 2x2 grid, 4 regions
+    fig, axs = plt.subplots(2, 2, figsize=(10, 8))
+    axs = axs.flatten()
+
+    for i, region in enumerate(regions):
+        ax = axs[i]
+        # Get recall counts for region, default to 0 if missing
+        counts = [data.get(region, {}).get(season, 0) for season in seasons]
+
+        # Bar chart
+        ax.bar(seasons, counts, color=region_colors[region])
+        ax.set_title(region)
+        ax.set_ylim(0, max(counts) + 2)
+        ax.set_ylabel("Recalls")
+
+    fig.suptitle("Food Recalls by Season for Each Region", fontsize=14)
+    plt.tight_layout(rect=[0, 0, 1, 0.96])
+    plt.show()
+
+
+# KARTHIK
+def weather_visualizations():
     city_data = monthly_averages()
     
     # Create graph for temperatures across cities
@@ -35,5 +72,56 @@ def main():
     plt.legend(title="City")
     plt.grid(axis='y')
     plt.show()
+
+# ANNA
+
+def calendar_count_visualizations():
+        # Load the data from the JSON file
+    with open("monthly_data.json", "r") as f:
+        data = json.load(f)
+
+    # Separate the data
+    holidays = data["holidays"]
+    recalls = data["recalls"]
+
+    # Sort by month order (optional, depending on DB order)
+    month_order = ["January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"]
+
+    # Sort dictionaries based on month_order
+    holidays_sorted = {month: holidays.get(month, 0) for month in month_order}
+    recalls_sorted = {month: recalls.get(month, 0) for month in month_order}
+
+    # --- Plot 1: Line Chart for Holidays Per Month ---
+    plt.figure(figsize=(10, 5))
+    plt.plot(holidays_sorted.keys(), holidays_sorted.values(), marker='o', linestyle='-', color='pink', label='Holidays')
+    plt.title("Number of Holidays Per Month")
+    plt.xlabel("Month")
+    plt.ylabel("Number of Holidays")
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.grid(True)
+    plt.savefig("holidays_line_chart.png")  # Saves the chart as an image
+    plt.show()
+
+    # --- Plot 2: Line Chart for Food Recalls Per Month ---
+    plt.figure(figsize=(10, 5))
+    plt.plot(recalls_sorted.keys(), recalls_sorted.values(), marker='o', linestyle='-', color='purple', label='Food Recalls')
+    plt.title("Number of Food Recalls Per Month")
+    plt.xlabel("Month")
+    plt.ylabel("Number of Recalls")
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.grid(True)
+    plt.savefig("recalls_line_chart.png")  # Saves the chart as an image
+    plt.show()
+
+  
+def main():
+    fda_recalls_visualizations()
+    weather_visualizations()
+    calendar_count_visualizations()
+
+
 if __name__ == "__main__":
     main()

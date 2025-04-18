@@ -3,88 +3,90 @@ import sqlite3
 
 API_KEY = "xmlDEL0okHlfnLCqKDM4Pj0LhxeE2u44lZ6dnh1O"
 
-def get_recall_data(api_key, start_date, end_date, limit=5):
-    """
-    Retrieves food recall enforcement data from the OpenFDA API.
-    
-    Parameters:
-      api_key (str): Your API key.
-      start_date (str): The recall initiation start date in 'YYYYMMDD' format.
-      end_date (str): The recall initiation end date in 'YYYYMMDD' format.
-      limit (int): The maximum number of results to return (default is 5).
-    
-    Returns:
-      list: A list of recall data records, or None if an error occurred.
-    """
+def get_recall_data(api_key, start_date, end_date, limit=25):
     base_url = "https://api.fda.gov/food/enforcement.json"
-    
-    # Build the search query based on the recall initiation date range.
     search_query = f"recall_initiation_date:[{start_date} TO {end_date}]"
-    
     params = {
         "api_key": api_key,
-        "search": search_query,
-        "limit": limit
+        "search":  search_query,
+        "limit":   limit * 4 
     }
-    
-    response = requests.get(base_url, params=params)
-    
-    if response.ok:
-        data = response.json()
-        return data.get("results", [])
-    else:
-        print("Error:", response.status_code, response.text)
-        return None
+    resp = requests.get(base_url, params=params)
+    return resp.json().get("results", []) if resp.ok else []
 
 def create_recall_table(db):
     conn = sqlite3.connect(db)
     cur = conn.cursor()
 
+    # States table to avoid repeating values
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS food_recalls (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            recall_number TEXT,
-            reason_for_recall TEXT,
-            status TEXT,
-            recalling_firm TEXT,
-            product_description TEXT UNIQUE,
-            recall_initiation_month INTEGER,
-            state TEXT,
-            distribution_pattern TEXT,
-            report_date TEXT,
-            voluntary_mandated TEXT
-        )
+      CREATE TABLE IF NOT EXISTS states (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        abbreviation TEXT UNIQUE
+      )
     """)
-    
+
+    # Create recalls table
+    cur.execute("""
+      CREATE TABLE IF NOT EXISTS food_recalls (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        recall_number TEXT UNIQUE,
+        product_description TEXT,
+        recall_initiation_month INTEGER,
+        state_id INTEGER,
+        FOREIGN KEY (state_id) REFERENCES states(id)
+      )
+    """)
     conn.commit()
     conn.close()
 
-def insert_recall_data(db, data):
+def insert_recall_data(db, data, limit=25):
     conn = sqlite3.connect(db)
     cur = conn.cursor()
+    inserted = 0
 
-    for record in data:
+    for r in data:
+        if inserted >= limit:
+            break
+
+        rn = r.get("recall_number")
+        state_abbr = r.get("state")
+
+        # Skip if recall already exists
+        cur.execute("SELECT 1 FROM food_recalls WHERE recall_number = ?", (rn,))
+        if cur.fetchone():
+            continue
+
+        # Insert state if it doesn't exist and fetch its id
+        cur.execute("SELECT id FROM states WHERE abbreviation = ?", (state_abbr,))
+        row = cur.fetchone()
+        if row:
+            state_id = row[0]
+        else:
+            cur.execute("INSERT INTO states (abbreviation) VALUES (?)", (state_abbr,))
+            state_id = cur.lastrowid
+
+        # Insert the recall
         cur.execute("""
-            INSERT OR IGNORE INTO food_recalls (
-                recall_number, reason_for_recall, status, recalling_firm,
-                product_description, recall_initiation_month, state,
-                distribution_pattern, report_date, voluntary_mandated
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          INSERT INTO food_recalls (
+            recall_number,
+            product_description,
+            recall_initiation_month,
+            state_id
+          ) VALUES (?, ?, ?, ?)
         """, (
-            record.get("recall_number"),
-            record.get("reason_for_recall"),
-            record.get("status"),
-            record.get("recalling_firm"),
-            record.get("product_description"),
-            int(record.get("recall_initiation_date")[4:6]),
-            record.get("state"),
-            record.get("distribution_pattern"),
-            record.get("report_date"),
-            record.get("voluntary_mandated")
+          rn,
+          r.get("product_description"),
+          int(r["recall_initiation_date"][4:6]),
+          state_id
         ))
-    
+
+        if cur.rowcount == 1:
+            inserted += 1
+
     conn.commit()
     conn.close()
+    print(f"{inserted} new recalls inserted this run.")
 
 def main():
         create_recall_table("A2N.db")
@@ -102,7 +104,7 @@ def main():
             if batch:
                 all_recalls.extend(batch)
 
-        insert_recall_data("A2N.db", all_recalls[:25])
+        insert_recall_data("A2N.db", all_recalls)
 
 if __name__ == "__main__":
         main()
