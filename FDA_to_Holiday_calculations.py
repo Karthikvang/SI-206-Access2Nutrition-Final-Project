@@ -19,7 +19,6 @@ def count_holidays_per_month():
                 ''')
     
     results = cur.fetchall()
-    
 
     conn.close()
     return {month: count for month, count in results}
@@ -52,11 +51,6 @@ def writer(holidays, recalls):
     with open("monthly_data.json", "w") as f:
         #json dump writes to the file
         json.dump(data, f, indent=4)
-
-    
-
-
-
 
 def main():
     holidays_per_month = count_holidays_per_month()

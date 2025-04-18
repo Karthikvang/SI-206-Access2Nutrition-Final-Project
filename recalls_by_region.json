@@ -1,0 +1,26 @@
+{
+    "Central": {
+        "Winter": 7,
+        "Spring": 20,
+        "Summer": 38,
+        "Fall": 15
+    },
+    "East": {
+        "Winter": 11,
+        "Spring": 18,
+        "Summer": 8,
+        "Fall": 8
+    },
+    "Midwest": {
+        "Winter": 32,
+        "Spring": 44,
+        "Summer": 23,
+        "Fall": 13
+    },
+    "West": {
+        "Winter": 51,
+        "Spring": 18,
+        "Summer": 31,
+        "Fall": 13
+    }
+}
