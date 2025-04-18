@@ -1,4 +1,5 @@
 import sqlite3
+import json
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -38,9 +39,14 @@ def monthly_averages():
 
     return return_dict
 
+def write(dict):
+    with open("city_avg_temps.json", "w") as f:
+        #json dump writes to the file
+        json.dump(dict, f, indent=4)
 
 def main():
-    monthly_averages()
+    dictionary = monthly_averages()
+    write(dictionary)
 
     
 
