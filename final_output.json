@@ -1,0 +1,99 @@
+{
+    "recalls_by_region_and_season": {
+        "Central": {
+            "Winter": 3
+        },
+        "East": {
+            "Winter": 2
+        },
+        "Midwest": {
+            "Winter": 7
+        },
+        "West": {
+            "Winter": 13
+        }
+    },
+    "city_monthly_avg_temperatures": {
+        "San Francisco": [
+            [
+                "may",
+                71.07096774193548
+            ],
+            [
+                "july",
+                67.45290322580645
+            ],
+            [
+                "september",
+                77.34733333333334
+            ],
+            [
+                "january",
+                90.74806451612903
+            ]
+        ],
+        "Detroit": [
+            [
+                "may",
+                69.63774193548387
+            ],
+            [
+                "july",
+                78.1032258064516
+            ],
+            [
+                "september",
+                63.66566666666667
+            ],
+            [
+                "january",
+                21.887096774193548
+            ]
+        ],
+        "New York": [
+            [
+                "may",
+                69.12935483870969
+            ],
+            [
+                "july",
+                77.99483870967742
+            ],
+            [
+                "september",
+                59.74
+            ],
+            [
+                "january",
+                18.424516129032256
+            ]
+        ],
+        "Dallas": [
+            [
+                "may",
+                70.45161290322581
+            ],
+            [
+                "july",
+                80.38290322580644
+            ],
+            [
+                "september",
+                62.525
+            ],
+            [
+                "january",
+                20.924838709677417
+            ]
+        ]
+    },
+    "holidays_per_month": {
+        "January": 23,
+        "February": 2
+    },
+    "recalls_per_month": {
+        "January": 6,
+        "February": 9,
+        "December": 10
+    }
+}

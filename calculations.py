@@ -45,14 +45,11 @@ def fetch_recalls_by_region_month(db):
             recalls[region] = {}
         recalls[region][season] = count
 
-    print(recalls)
+    
     return recalls
 
-def write_recalls_to_json(data, filename='recalls_by_region.json'):
-    with open(filename, 'w') as f:
-        json.dump(data, f, indent=4)
 
-    print(f"Data written to {filename}")
+    
 
 # KARTHIK
 
@@ -128,33 +125,27 @@ def count_recalls_per_month():
     conn.close()
     return {month: count for month, count in results2}
     
-    
-
-def writer(holidays, recalls):
-    data = {
-        "holidays": holidays,
-        "recalls": recalls
+def write_all_results_to_json(joseph_data, karthik_data, anna_holidays, anna_recalls, filename='final_output.json'):
+    all_data = {
+        "recalls_by_region_and_season": joseph_data,
+        "city_monthly_avg_temperatures": karthik_data,
+        "holidays_per_month": anna_holidays,
+        "recalls_per_month": anna_recalls
     }
+    with open(filename, 'w') as f:
+        json.dump(all_data, f, indent=4)
+    print(f" All data written to {filename}")
+   
 
-    with open("monthly_data.json", "w") as f:
-        #json dump writes to the file
-        json.dump(data, f, indent=4)
 
 
 def main():
-    # JOSEPH CALL
-    recall_data = fetch_recalls_by_region_month('A2N.db')
-    write_recalls_to_json(recall_data)
+    joseph_data = fetch_recalls_by_region_month('A2N.db')
+    karthik_data = monthly_averages()
+    anna_holidays = count_holidays_per_month()
+    anna_recalls = count_recalls_per_month()
 
-    # KARTHIK CALL
-    monthly_averages()
-
-    # ANNA CALL
-    holidays_per_month = count_holidays_per_month()
-    recalls_per_month = count_recalls_per_month()
-
-    writer(holidays_per_month, recalls_per_month)
-
+    write_all_results_to_json(joseph_data, karthik_data, anna_holidays, anna_recalls)
 
 if __name__ == "__main__":
     main()
