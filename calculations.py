@@ -10,13 +10,13 @@ def fetch_recalls_by_region_month(db):
     cur.execute("""
         SELECT
           CASE
-            WHEN state IN ('ME','NH','VT','MA','RI','CT','NY','NJ','PA') THEN 'East'
-            WHEN state IN ('OH','MI','IN','IL','WI','MN','IA','MO','ND','SD','NE','KS') THEN 'Midwest'
-            WHEN state IN ('DE','MD','DC','VA','WV','NC','SC','GA','FL','KY','TN','MS','AL','OK','TX','AR','LA') THEN 'Central'
+            WHEN s.abbreviation IN ('ME','NH','VT','MA','RI','CT','NY','NJ','PA') THEN 'East'
+            WHEN s.abbreviation IN ('OH','MI','IN','IL','WI','MN','IA','MO','ND','SD','NE','KS') THEN 'Midwest'
+            WHEN s.abbreviation IN ('DE','MD','DC','VA','WV','NC','SC','GA','FL','KY','TN','MS','AL','OK','TX','AR','LA') THEN 'Central'
             ELSE 'West'
           END AS region,
 
-          CASE recall_initiation_month
+          CASE fr.recall_initiation_month
             WHEN 12 THEN 'Winter' WHEN 1 THEN 'Winter'  WHEN 2 THEN 'Winter'
             WHEN 3  THEN 'Spring' WHEN 4 THEN 'Spring' WHEN 5 THEN 'Spring'
             WHEN 6  THEN 'Summer' WHEN 7 THEN 'Summer' WHEN 8 THEN 'Summer'
@@ -24,11 +24,12 @@ def fetch_recalls_by_region_month(db):
           END AS season,
 
           COUNT(*) AS recall_count
-        FROM food_recalls
+        FROM food_recalls fr
+        JOIN states s ON fr.state_id = s.id
         GROUP BY region, season
         ORDER BY
           region,
-          CASE recall_initiation_month
+          CASE fr.recall_initiation_month
             WHEN 12 THEN 1 WHEN 1 THEN 1 WHEN 2 THEN 1
             WHEN 3  THEN 2 WHEN 4 THEN 2 WHEN 5 THEN 2
             WHEN 6  THEN 3 WHEN 7 THEN 3 WHEN 8 THEN 3
@@ -45,11 +46,8 @@ def fetch_recalls_by_region_month(db):
             recalls[region] = {}
         recalls[region][season] = count
 
-    
     return recalls
 
-
-    
 # KARTHIK
 
 def monthly_averages():

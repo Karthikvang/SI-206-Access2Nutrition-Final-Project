@@ -16,13 +16,25 @@ def get_recall_data(api_key, start_date, end_date, limit=25):
 
 def create_recall_table(db):
     conn = sqlite3.connect(db)
-    conn.execute("""
+    cur = conn.cursor()
+
+    # States table to avoid repeating values
+    cur.execute("""
+      CREATE TABLE IF NOT EXISTS states (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        abbreviation TEXT UNIQUE
+      )
+    """)
+
+    # Create recalls table
+    cur.execute("""
       CREATE TABLE IF NOT EXISTS food_recalls (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         recall_number TEXT UNIQUE,
         product_description TEXT,
         recall_initiation_month INTEGER,
-        state TEXT
+        state_id INTEGER,
+        FOREIGN KEY (state_id) REFERENCES states(id)
       )
     """)
     conn.commit()
@@ -30,7 +42,7 @@ def create_recall_table(db):
 
 def insert_recall_data(db, data, limit=25):
     conn = sqlite3.connect(db)
-    cur  = conn.cursor()
+    cur = conn.cursor()
     inserted = 0
 
     for r in data:
@@ -38,24 +50,35 @@ def insert_recall_data(db, data, limit=25):
             break
 
         rn = r.get("recall_number")
-        # skip if already in DB
+        state_abbr = r.get("state")
+
+        # Skip if recall already exists
         cur.execute("SELECT 1 FROM food_recalls WHERE recall_number = ?", (rn,))
         if cur.fetchone():
             continue
 
-        # insert the new recall
+        # Insert state if it doesn't exist and fetch its id
+        cur.execute("SELECT id FROM states WHERE abbreviation = ?", (state_abbr,))
+        row = cur.fetchone()
+        if row:
+            state_id = row[0]
+        else:
+            cur.execute("INSERT INTO states (abbreviation) VALUES (?)", (state_abbr,))
+            state_id = cur.lastrowid
+
+        # Insert the recall
         cur.execute("""
           INSERT INTO food_recalls (
             recall_number,
             product_description,
             recall_initiation_month,
-            state
+            state_id
           ) VALUES (?, ?, ?, ?)
         """, (
           rn,
           r.get("product_description"),
           int(r["recall_initiation_date"][4:6]),
-          r.get("state")
+          state_id
         ))
 
         if cur.rowcount == 1:
