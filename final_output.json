@@ -1,16 +1,20 @@
 {
     "recalls_by_region_and_season": {
         "Central": {
-            "Winter": 3
+            "Winter": 7,
+            "Spring": 15
         },
         "East": {
-            "Winter": 2
+            "Winter": 11,
+            "Spring": 11
         },
         "Midwest": {
-            "Winter": 7
+            "Winter": 31,
+            "Spring": 33
         },
         "West": {
-            "Winter": 13
+            "Winter": 51,
+            "Spring": 16
         }
     },
     "city_monthly_avg_temperatures": {
@@ -89,11 +93,16 @@
     },
     "holidays_per_month": {
         "January": 23,
-        "February": 2
+        "February": 37,
+        "March": 54,
+        "April": 36
     },
     "recalls_per_month": {
-        "January": 6,
-        "February": 9,
-        "December": 10
+        "January": 36,
+        "February": 30,
+        "March": 22,
+        "April": 13,
+        "May": 40,
+        "December": 34
     }
 }

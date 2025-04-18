@@ -50,7 +50,6 @@ def fetch_recalls_by_region_month(db):
 
 
     
-
 # KARTHIK
 
 def monthly_averages():
