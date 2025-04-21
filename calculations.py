@@ -137,7 +137,7 @@ def write_all_results_to_json(joseph_data, karthik_data, anna_holidays, anna_rec
 
 
 def main():
-    joseph_data = fetch_recalls_by_region_month('A2N.db')
+    joseph_data = fetch_recalls_by_region_month('FoodRecall.db')
     karthik_data = monthly_averages()
     anna_holidays = count_holidays_per_month()
     anna_recalls = count_recalls_per_month()

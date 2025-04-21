@@ -118,9 +118,9 @@ def calendar_count_visualizations():
 
   
 def main():
-    #fda_recalls_visualizations()
+    fda_recalls_visualizations()
     weather_visualizations()
-    #calendar_count_visualizations()
+    calendar_count_visualizations()
 
 
 if __name__ == "__main__":
