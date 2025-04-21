@@ -135,10 +135,10 @@ def get_january_data(lat,lon):
 
 def create_db(cur, conn):
     cur.execute("""CREATE TABLE IF NOT EXISTS city (id INTEGER PRIMARY KEY AUTOINCREMENT, city_name TEXT) """)
-    cur.execute("CREATE TABLE IF NOT EXISTS months (id INTEGER PRIMARY KEY AUTOINCREMENT, month TEXT)")
+    # cur.execute("CREATE TABLE IF NOT EXISTS months (id INTEGER PRIMARY KEY AUTOINCREMENT, month TEXT)")
     cur.execute("""CREATE TABLE IF NOT EXISTS temperatures 
                 (id INTEGER PRIMARY KEY AUTOINCREMENT, city_id INTEGER, month_id INTEGER, temp INTEGER, 
-                FOREIGN KEY(city_id) REFERENCES city(id), FOREIGN KEY(month_id) REFERENCES months(id))""")
+                FOREIGN KEY(city_id) REFERENCES city(id), FOREIGN KEY(month_id) REFERENCES holiday_months(id))""")
     
     conn.commit()
 
@@ -158,13 +158,13 @@ def insert_data (month, city, data, cur, conn, limit = 25):
         
 
     # Load the months into the database
-    cur.execute("""SELECT id FROM months WHERE month = ? """, (month,))
+    cur.execute("""SELECT id FROM holiday_months WHERE name = ? """, (month,))
     month_res = cur.fetchone()
 
     if month_res:
         month_res = month_res[0]
     else:
-        cur.execute("INSERT INTO months (month) VALUES (?)", (month,))
+        cur.execute("INSERT INTO holiday_months(name) VALUES (?)", (month,))
         month_res = cur.lastrowid
 
     for day in data:
@@ -261,71 +261,71 @@ def main():
     # San Francisco
     for i in range(0, len(may_sf), 25):
         batch = may_sf[i:i+25]
-        insert_data('may', 'San Francisco', batch, cur, conn)
+        insert_data('May', 'San Francisco', batch, cur, conn)
     
     for i in range(0, len(jul_sf), 25):
         batch = jul_sf[i:i+25]
-        insert_data('july', 'San Francisco', batch, cur, conn)
+        insert_data('July', 'San Francisco', batch, cur, conn)
 
     for i in range(0, len(sept_sf), 25):
         batch = sept_sf[i:i+25]
-        insert_data('september', 'San Francisco', batch, cur, conn)
+        insert_data('September', 'San Francisco', batch, cur, conn)
     
     for i in range(0, len(jan_sf), 25):
         batch = jan_sf[i:i+25]
-        insert_data('january', 'San Francisco', batch, cur, conn)
+        insert_data('January', 'San Francisco', batch, cur, conn)
 
     # Detroit
     for i in range(0, len(may_dt), 25):
         batch = may_dt[i:i+25]
-        insert_data('may', 'Detroit', batch, cur, conn)
+        insert_data('May', 'Detroit', batch, cur, conn)
     
     for i in range(0, len(jul_dt), 25):
         batch = jul_dt[i:i+25]
-        insert_data('july', 'Detroit', batch, cur, conn)
+        insert_data('July', 'Detroit', batch, cur, conn)
 
     for i in range(0, len(sept_dt), 25):
         batch = sept_dt[i:i+25]
-        insert_data('september', 'Detroit', batch, cur, conn)
+        insert_data('September', 'Detroit', batch, cur, conn)
     
     for i in range(0, len(jan_dt), 25):
         batch = jan_dt[i:i+25]
-        insert_data('january', 'Detroit', batch, cur, conn)
+        insert_data('January', 'Detroit', batch, cur, conn)
 
 
     # Washington DC
     for i in range(0, len(may_ny), 25):
         batch = may_ny[i:i+25]
-        insert_data('may', 'New York', batch, cur, conn)
+        insert_data('May', 'New York', batch, cur, conn)
     
     for i in range(0, len(jul_ny), 25):
         batch = jul_ny[i:i+25]
-        insert_data('july', 'New York', batch, cur, conn)
+        insert_data('July', 'New York', batch, cur, conn)
 
     for i in range(0, len(sept_ny), 25):
         batch = sept_ny[i:i+25]
-        insert_data('september', 'New York', batch, cur, conn)
+        insert_data('September', 'New York', batch, cur, conn)
     
     for i in range(0, len(jan_ny), 25):
         batch = jan_ny[i:i+25]
-        insert_data('january', 'New York', batch, cur, conn)
+        insert_data('January', 'New York', batch, cur, conn)
 
     # Dallas
     for i in range(0, len(may_dl), 25):
         batch = may_dl[i:i+25]
-        insert_data('may', 'Dallas', batch, cur, conn)
+        insert_data('May', 'Dallas', batch, cur, conn)
     
     for i in range(0, len(jul_dl), 25):
         batch = jul_dl[i:i+25]
-        insert_data('july', 'Dallas', batch, cur, conn)
+        insert_data('July', 'Dallas', batch, cur, conn)
 
     for i in range(0, len(sept_dl), 25):
         batch = sept_dl[i:i+25]
-        insert_data('september', 'Dallas', batch, cur, conn)
+        insert_data('September', 'Dallas', batch, cur, conn)
     
     for i in range(0, len(jan_dl), 25):
         batch = jan_dl[i:i+25]
-        insert_data('january', 'Dallas', batch, cur, conn)
+        insert_data('January', 'Dallas', batch, cur, conn)
 
     # Pontiac
     # for i in range(0, len(may_pc), 25):
