@@ -5,7 +5,7 @@ from calculations import *
 # JOSEPH
 
 def fda_recalls_visualizations():
-    data = fetch_recalls_by_region_month('A2N.db')
+    data = fetch_recalls_by_region_month('FoodRecall.db')
 
     seasons = ['Winter', 'Spring', 'Summer', 'Fall']
     regions = ['East', 'Central', 'Midwest', 'West']

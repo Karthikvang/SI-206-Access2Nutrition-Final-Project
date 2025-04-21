@@ -51,7 +51,7 @@ def fetch_recalls_by_region_month(db):
 # KARTHIK
 
 def monthly_averages():
-    conn = sqlite3.connect('A2N.db')
+    conn = sqlite3.connect('FoodRecall.db')
     cur = conn.cursor()
 
     return_dict = {}
@@ -88,7 +88,7 @@ def monthly_averages():
 # ANNA
 
 def count_holidays_per_month():
-    conn = sqlite3.connect('A2N.db')
+    conn = sqlite3.connect('FoodRecall.db')
     cur = conn.cursor() 
 
     cur.execute(''' 
@@ -106,7 +106,7 @@ def count_holidays_per_month():
     return {month: count for month, count in results}
 
 def count_recalls_per_month():
-    conn = sqlite3.connect('A2N.db')
+    conn = sqlite3.connect('FoodRecall.db')
     cur = conn.cursor() 
 
     cur.execute(''' 
