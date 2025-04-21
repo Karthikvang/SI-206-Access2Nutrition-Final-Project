@@ -55,32 +55,32 @@ def monthly_averages():
     cur = conn.cursor()
 
     return_dict = {}
-    sf_monthly_avg = cur.execute("""SELECT months.month, AVG(temperatures.temp) AS avg_temp
-                         FROM temperatures JOIN months ON temperatures.month_id = months.id 
+    sf_monthly_avg = cur.execute("""SELECT holiday_months.name, AVG(temperatures.temp) AS avg_temp
+                         FROM temperatures JOIN holiday_months ON temperatures.month_id = holiday_months.id 
                          JOIN city ON temperatures.city_id = city.id
                          WHERE city.city_name = ?
-                         GROUP BY months.id""", ('San Francisco',)).fetchall()
+                         GROUP BY holiday_months.id""", ('San Francisco',)).fetchall()
     return_dict['San Francisco'] = sf_monthly_avg
 
-    dt_monthly_avg = cur.execute("""SELECT months.month, AVG(temperatures.temp) AS avg_temp
-                         FROM temperatures JOIN months ON temperatures.month_id = months.id 
+    dt_monthly_avg = cur.execute("""SELECT holiday_months.name, AVG(temperatures.temp) AS avg_temp
+                         FROM temperatures JOIN holiday_months ON temperatures.month_id = holiday_months.id 
                          JOIN city ON temperatures.city_id = city.id
                          WHERE city.city_name = ?
-                         GROUP BY months.id""", ('Detroit',)).fetchall()
+                         GROUP BY holiday_months.id""", ('Detroit',)).fetchall()
     return_dict['Detroit'] = dt_monthly_avg
 
-    ny_monthly_avg = cur.execute("""SELECT months.month, AVG(temperatures.temp) AS avg_temp
-                         FROM temperatures JOIN months ON temperatures.month_id = months.id 
+    ny_monthly_avg = cur.execute("""SELECT holiday_months.name, AVG(temperatures.temp) AS avg_temp
+                         FROM temperatures JOIN holiday_months ON temperatures.month_id = holiday_months.id 
                          JOIN city ON temperatures.city_id = city.id
                          WHERE city.city_name = ?
-                         GROUP BY months.id""", ('New York',)).fetchall()
+                         GROUP BY holiday_months.id""", ('New York',)).fetchall()
     return_dict['New York'] = ny_monthly_avg
 
-    dl_monthly_avg = cur.execute("""SELECT months.month, AVG(temperatures.temp) AS avg_temp
-                         FROM temperatures JOIN months ON temperatures.month_id = months.id 
+    dl_monthly_avg = cur.execute("""SELECT holiday_months.name, AVG(temperatures.temp) AS avg_temp
+                         FROM temperatures JOIN holiday_months ON temperatures.month_id = holiday_months.id 
                          JOIN city ON temperatures.city_id = city.id
                          WHERE city.city_name = ?
-                         GROUP BY months.id""", ('Dallas',)).fetchall()
+                         GROUP BY holiday_months.id""", ('Dallas',)).fetchall()
     return_dict['Dallas'] = dl_monthly_avg
 
     return return_dict

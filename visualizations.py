@@ -43,7 +43,7 @@ def weather_visualizations():
     city_data = monthly_averages()
     
     # Create graph for temperatures across cities
-    month_order = ['may', 'july', 'september', 'january']
+    month_order = ['May', 'July', 'September', 'January']
     cities = list(city_data.keys())
 
     # Sort the data to match month_order
@@ -118,9 +118,9 @@ def calendar_count_visualizations():
 
   
 def main():
-    fda_recalls_visualizations()
+    #fda_recalls_visualizations()
     weather_visualizations()
-    calendar_count_visualizations()
+    #calendar_count_visualizations()
 
 
 if __name__ == "__main__":
