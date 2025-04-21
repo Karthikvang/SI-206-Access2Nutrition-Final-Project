@@ -16,7 +16,7 @@ YEAR = 2024
 #Set up my database and create my holidays table
 
 def create_database():
-    conn = sqlite3.connect('A2N.db')
+    conn = sqlite3.connect('FoodRecall.db')
     cur = conn.cursor()
 
     # Table for months
@@ -133,7 +133,7 @@ def main():
     create_database()
 
     #connect again to insert data
-    conn = sqlite3.connect('A2N.db')
+    conn = sqlite3.connect('FoodRecall.db')
     cur = conn.cursor()
 
     #get holidays from the API

@@ -234,7 +234,7 @@ def main():
     # jan_pc = get_january_data(pc_geocode[0], pc_geocode[1])
     # print("Pontiac API data loaded.\n")
 
-    conn = sqlite3.connect('A2N.db')
+    conn = sqlite3.connect('FoodRecall.db')
     cur = conn.cursor()
     print("Database connection established.\n")
 

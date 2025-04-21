@@ -89,7 +89,7 @@ def insert_recall_data(db, data, limit=25):
     print(f"{inserted} new recalls inserted this run.")
 
 def main():
-        create_recall_table("A2N.db")
+        create_recall_table("FoodRecall.db")
 
         seasons = [
         ("20241202", "20250301"),  # winter
@@ -104,7 +104,7 @@ def main():
             if batch:
                 all_recalls.extend(batch)
 
-        insert_recall_data("A2N.db", all_recalls)
+        insert_recall_data("FoodRecall.db", all_recalls)
 
 if __name__ == "__main__":
         main()
