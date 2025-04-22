@@ -76,7 +76,7 @@ def weather_visualizations():
 # ANNA
 
 def calendar_count_visualizations():
-        # Load the data from the JSON file
+    # Load the data from the JSON file
     with open("final_output.json", "r") as f:
         data = json.load(f)
 
@@ -92,7 +92,7 @@ def calendar_count_visualizations():
     holidays_sorted = {month: holidays.get(month, 0) for month in month_order}
     recalls_sorted = {month: recalls.get(month, 0) for month in month_order}
 
-    # --- Plot 1: Line Chart for Holidays Per Month ---
+    # Line Chart for Holidays Per Month 
     plt.figure(figsize=(10, 5))
     plt.plot(holidays_sorted.keys(), holidays_sorted.values(), marker='o', linestyle='-', color='pink', label='Holidays')
     plt.title("Number of Holidays Per Month")
@@ -101,10 +101,10 @@ def calendar_count_visualizations():
     plt.xticks(rotation=45)
     plt.tight_layout()
     plt.grid(True)
-    plt.savefig("holidays_line_chart.png")  # Saves the chart as an image
+    plt.savefig("holidays_line_chart.png") 
     plt.show()
 
-    # --- Plot 2: Line Chart for Food Recalls Per Month ---
+    # Line Chart for Food Recalls Per Month 
     plt.figure(figsize=(10, 5))
     plt.plot(recalls_sorted.keys(), recalls_sorted.values(), marker='o', linestyle='-', color='purple', label='Food Recalls')
     plt.title("Number of Food Recalls Per Month")
@@ -113,7 +113,7 @@ def calendar_count_visualizations():
     plt.xticks(rotation=45)
     plt.tight_layout()
     plt.grid(True)
-    plt.savefig("recalls_line_chart.png")  # Saves the chart as an image
+    plt.savefig("recalls_line_chart.png")  
     plt.show()
 
   
