@@ -77,12 +77,12 @@ def weather_visualizations():
 
 def calendar_count_visualizations():
         # Load the data from the JSON file
-    with open("monthly_data.json", "r") as f:
+    with open("final_output.json", "r") as f:
         data = json.load(f)
 
     # Separate the data
-    holidays = data["holidays"]
-    recalls = data["recalls"]
+    holidays = data["holidays_per_month"]
+    recalls = data["recalls_per_month"]
 
     # Sort by month order (optional, depending on DB order)
     month_order = ["January", "February", "March", "April", "May", "June",

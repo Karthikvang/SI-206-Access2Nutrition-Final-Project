@@ -2,92 +2,100 @@
     "recalls_by_region_and_season": {
         "Central": {
             "Winter": 7,
-            "Spring": 15
+            "Spring": 20,
+            "Summer": 38,
+            "Fall": 24
         },
         "East": {
             "Winter": 11,
-            "Spring": 11
+            "Spring": 18,
+            "Summer": 8,
+            "Fall": 16
         },
         "Midwest": {
-            "Winter": 31,
-            "Spring": 33
+            "Winter": 32,
+            "Spring": 44,
+            "Summer": 23,
+            "Fall": 37
         },
         "West": {
             "Winter": 51,
-            "Spring": 16
+            "Spring": 18,
+            "Summer": 31,
+            "Fall": 22
         }
     },
     "city_monthly_avg_temperatures": {
         "San Francisco": [
             [
-                "may",
+                "January",
+                90.74806451612903
+            ],
+            [
+                "May",
                 71.07096774193548
             ],
             [
-                "july",
+                "July",
                 67.45290322580645
             ],
             [
-                "september",
+                "September",
                 77.34733333333334
-            ],
-            [
-                "january",
-                90.74806451612903
             ]
         ],
         "Detroit": [
             [
-                "may",
+                "January",
+                21.887096774193548
+            ],
+            [
+                "May",
                 69.63774193548387
             ],
             [
-                "july",
+                "July",
                 78.1032258064516
             ],
             [
-                "september",
+                "September",
                 63.66566666666667
-            ],
-            [
-                "january",
-                21.887096774193548
             ]
         ],
         "New York": [
             [
-                "may",
+                "January",
+                18.424516129032256
+            ],
+            [
+                "May",
                 69.12935483870969
             ],
             [
-                "july",
+                "July",
                 77.99483870967742
             ],
             [
-                "september",
+                "September",
                 59.74
-            ],
-            [
-                "january",
-                18.424516129032256
             ]
         ],
         "Dallas": [
             [
-                "may",
+                "January",
+                20.924838709677417
+            ],
+            [
+                "May",
                 70.45161290322581
             ],
             [
-                "july",
+                "July",
                 80.38290322580644
             ],
             [
-                "september",
+                "September",
                 62.525
-            ],
-            [
-                "january",
-                20.924838709677417
             ]
         ]
     },
@@ -95,14 +103,28 @@
         "January": 23,
         "February": 37,
         "March": 54,
-        "April": 36
+        "April": 48,
+        "May": 70,
+        "June": 57,
+        "July": 19,
+        "August": 28,
+        "September": 47,
+        "October": 52,
+        "November": 47,
+        "December": 41
     },
     "recalls_per_month": {
         "January": 36,
         "February": 30,
-        "March": 22,
-        "April": 13,
-        "May": 40,
-        "December": 34
+        "March": 27,
+        "April": 17,
+        "May": 56,
+        "June": 45,
+        "July": 37,
+        "August": 18,
+        "September": 11,
+        "October": 48,
+        "November": 40,
+        "December": 35
     }
 }
