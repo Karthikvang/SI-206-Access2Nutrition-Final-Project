@@ -135,7 +135,6 @@ def get_january_data(lat,lon):
 
 def create_db(cur, conn):
     cur.execute("""CREATE TABLE IF NOT EXISTS city (id INTEGER PRIMARY KEY AUTOINCREMENT, city_name TEXT) """)
-    # cur.execute("CREATE TABLE IF NOT EXISTS months (id INTEGER PRIMARY KEY AUTOINCREMENT, month TEXT)")
     cur.execute("""CREATE TABLE IF NOT EXISTS temperatures 
                 (id INTEGER PRIMARY KEY AUTOINCREMENT, city_id INTEGER, month_id INTEGER, temp INTEGER, 
                 FOREIGN KEY(city_id) REFERENCES city(id), FOREIGN KEY(month_id) REFERENCES holiday_months(id))""")
@@ -143,66 +142,105 @@ def create_db(cur, conn):
     conn.commit()
 
 
-def insert_data (month, city, data, cur, conn, limit = 25):
-    inserted = 0
-    
-    # Load the city name into the database
-    cur.execute("""SELECT id FROM city WHERE city_name = ?""", (city,))
-    city_res = cur.fetchone()
+def insert_data (month, city, data, cur, conn, total_inserted_tracker, limit = 25):
+    if total_inserted_tracker[0] >= limit:
+        return
 
-    if city_res:
-        city_res = city_res[0]
-    else:
-        cur.execute("INSERT INTO city(city_name) VALUES (?)", (city,))
-        city_res = cur.lastrowid
-        
-
-    # Load the months into the database
-    cur.execute("""SELECT id FROM holiday_months WHERE name = ? """, (month,))
+    # Get or create month ID
+    cur.execute("SELECT id FROM holiday_months WHERE name = ?", (month,))
     month_res = cur.fetchone()
-
     if month_res:
-        month_res = month_res[0]
+        month_id = month_res[0]
     else:
         cur.execute("INSERT INTO holiday_months(name) VALUES (?)", (month,))
-        month_res = cur.lastrowid
+        month_id = cur.lastrowid
+
+    # Get or create city ID
+    cur.execute("SELECT id FROM city WHERE city_name = ?", (city,))
+    city_res = cur.fetchone()
+    if city_res:
+        city_id = city_res[0]
+    else:
+        cur.execute("INSERT INTO city(city_name) VALUES (?)", (city,))
+        city_id = cur.lastrowid
 
     for day in data:
-        # Break if the number of loaded statements exceeds 25
-        if inserted >= limit:
+        if total_inserted_tracker[0] >= limit:
             break
 
-        date = day['dt']
         temp = day['main']['temp']
 
-        # Load the temperature values into the database
-        cur.execute("""INSERT OR IGNORE INTO temperatures (city_id, month_id, temp) 
-                    VALUES (?, ?, ?)""",
-                    (city_res, month_res, temp))
+        # Check for duplicates
+        cur.execute("""
+            SELECT id FROM temperatures 
+            WHERE city_id = ? AND month_id = ? AND temp = ?
+        """, (city_id, month_id, temp))
+        if cur.fetchone():
+            continue
+
+        # Insert temperature
+        cur.execute("""
+            INSERT INTO temperatures (city_id, month_id, temp) 
+            VALUES (?, ?, ?)
+        """, (city_id, month_id, temp))
         
-        inserted += 1
-        conn.commit()
+        total_inserted_tracker[0] += 1
+
+    conn.commit()
+
+    # inserted = 0
+    # for day in data:
+    #     if inserted >= limit:
+    #         break
+
+    #     # Load the city name into the database
+    #     cur.execute("""SELECT id FROM city WHERE city_name = ?""", (city,))
+    #     city_res = cur.fetchone()
+
+    #     if city_res:
+    #         city_res = city_res[0]
+    #     else:
+    #         cur.execute("INSERT INTO city(city_name) VALUES (?)", (city,))
+    #         city_res = cur.lastrowid
+            
+
+    #     # Load the months into the database
+    #     cur.execute("""SELECT id FROM holiday_months WHERE name = ? """, (month,))
+    #     month_res = cur.fetchone()
+
+    #     if month_res:
+    #         month_res = month_res[0]
+    #     else:
+    #         cur.execute("INSERT INTO holiday_months(name) VALUES (?)", (month,))
+    #         month_res = cur.lastrowid
+
+    #     # for day in data:
+    #     #     # Break if the number of loaded statements exceeds 25
+    #     #     if inserted >= limit:
+    #     #         break
+
+    #     date = day['dt']
+    #     temp = day['main']['temp']
+
+    #     # Load the temperature values into the database
+    #     cur.execute("""INSERT OR IGNORE INTO temperatures (city_id, month_id, temp) 
+    #                 VALUES (?, ?, ?)""",
+    #                 (city_res, month_res, temp))
+        
+    #     inserted += 1
+    #     conn.commit()
     
-    print(f'{inserted} row(s) inserted') 
+    # print(f'{inserted} row(s) inserted') 
     
 
 def main():
 
     # Get coordinates to help API locate city
     sf_geocode = get_geocode('San Francisco')
-    # aa_geocode = get_geocode('Ann Arbor')
     ny_geocode = get_geocode('New York')
     dt_geocode = get_geocode('Detroit')
     dl_geocode = get_geocode('Dallas')
-    # pc_geocode = get_geocode('Pontiac')
     print("Geocodes created.\n")
-
-    # Organize returned data into summer & winter dictionaries
-    # may_data = get_may_data(aa_geocode[0], aa_geocode[1])
-    # july_data = get_july_data(aa_geocode[0], aa_geocode[1])
-    # sept_data = get_september_data(aa_geocode[0], aa_geocode[1])
-    # jan_data = get_january_data(aa_geocode[0], aa_geocode[1])
-    # print("Ann Arbor API data loaded.\n")
 
     may_sf = get_may_data(sf_geocode[0], sf_geocode[1])
     jul_sf = get_july_data(sf_geocode[0], sf_geocode[1])
@@ -228,11 +266,6 @@ def main():
     jan_dl = get_january_data(dl_geocode[0], dl_geocode[1])
     print("Dallas API data loaded.\n")
 
-    # may_pc = get_may_data(pc_geocode[0], pc_geocode[1])
-    # jul_pc = get_july_data(pc_geocode[0], pc_geocode[1])
-    # sept_pc= get_september_data(pc_geocode[0], pc_geocode[1])
-    # jan_pc = get_january_data(pc_geocode[0], pc_geocode[1])
-    # print("Pontiac API data loaded.\n")
 
     conn = sqlite3.connect('FoodRecall.db')
     cur = conn.cursor()
@@ -241,108 +274,104 @@ def main():
     create_db(cur, conn)
     print("Database tables created.\n")
 
-    # Ann Arbor
-    # for i in range(0, len(may_data), 25):
-    #     batch = may_data[i:i+25]
-    #     insert_data('may', 'Ann Arbor', batch, cur, conn)
+    # Tracker to keep track of what is inserted into the database
+    total_inserted_tracker = [0]
 
-    # for i in range(0, len(july_data), 25):
-    #     batch = july_data[i:i+25]
-    #     insert_data('july', 'Ann Arbor', batch, cur, conn)
+    insert_data("May", "San Francisco", may_sf, cur, conn, total_inserted_tracker)
+    insert_data("July", "San Francisco", jul_sf, cur, conn, total_inserted_tracker)
+    insert_data("September", "San Francisco", sept_sf, cur, conn, total_inserted_tracker)
+    insert_data("January", "San Francisco", jan_sf, cur, conn, total_inserted_tracker)
 
-    # for i in range(0, len(sept_data), 25):
-    #     batch = sept_data[i:i+25]
-    #     insert_data('september', 'Ann Arbor', batch, cur, conn)
+    insert_data("May", "Detroit", may_dt, cur, conn, total_inserted_tracker)
+    insert_data("July", "Detroit", jul_dt, cur, conn, total_inserted_tracker)
+    insert_data("September", "Detroit", sept_dt, cur, conn, total_inserted_tracker)
+    insert_data("January", "Detroit", jan_dt, cur, conn, total_inserted_tracker)
 
-    # for i in range(0, len(jan_data), 25):
-    #     batch = jan_data[i:i+25]
-    #     insert_data('january', 'Ann Arbor', batch, cur, conn)
+    insert_data("May", "New York", may_ny, cur, conn, total_inserted_tracker)
+    insert_data("July", "New York", jul_ny, cur, conn, total_inserted_tracker)
+    insert_data("September", "New York", sept_ny, cur, conn, total_inserted_tracker)
+    insert_data("January", "New York", jan_ny, cur, conn, total_inserted_tracker)
 
-    # San Francisco
-    for i in range(0, len(may_sf), 25):
-        batch = may_sf[i:i+25]
-        insert_data('May', 'San Francisco', batch, cur, conn)
+    insert_data("May", "Dallas", may_dl, cur, conn, total_inserted_tracker)
+    insert_data("July", "Dallas", jul_dl, cur, conn, total_inserted_tracker)
+    insert_data("September", "Dallas", sept_dl, cur, conn, total_inserted_tracker)
+    insert_data("January", "Dallas", jan_dl, cur, conn, total_inserted_tracker)
+
+    # Close the database connection
+    conn.close()
+    print(f"\nTotal rows inserted this run: {total_inserted_tracker[0]}")
+
+    # Close the database connection
+    #conn.close()
+
+    # # San Francisco
+    # for i in range(0, len(may_sf), 25):
+    #     batch = may_sf[i:i+25]
+    #     insert_data('May', 'San Francisco', batch, cur, conn)
     
-    for i in range(0, len(jul_sf), 25):
-        batch = jul_sf[i:i+25]
-        insert_data('July', 'San Francisco', batch, cur, conn)
+    # for i in range(0, len(jul_sf), 25):
+    #     batch = jul_sf[i:i+25]
+    #     insert_data('July', 'San Francisco', batch, cur, conn)
 
-    for i in range(0, len(sept_sf), 25):
-        batch = sept_sf[i:i+25]
-        insert_data('September', 'San Francisco', batch, cur, conn)
+    # for i in range(0, len(sept_sf), 25):
+    #     batch = sept_sf[i:i+25]
+    #     insert_data('September', 'San Francisco', batch, cur, conn)
     
-    for i in range(0, len(jan_sf), 25):
-        batch = jan_sf[i:i+25]
-        insert_data('January', 'San Francisco', batch, cur, conn)
+    # for i in range(0, len(jan_sf), 25):
+    #     batch = jan_sf[i:i+25]
+    #     insert_data('January', 'San Francisco', batch, cur, conn)
 
-    # Detroit
-    for i in range(0, len(may_dt), 25):
-        batch = may_dt[i:i+25]
-        insert_data('May', 'Detroit', batch, cur, conn)
+    # # Detroit
+    # for i in range(0, len(may_dt), 25):
+    #     batch = may_dt[i:i+25]
+    #     insert_data('May', 'Detroit', batch, cur, conn)
     
-    for i in range(0, len(jul_dt), 25):
-        batch = jul_dt[i:i+25]
-        insert_data('July', 'Detroit', batch, cur, conn)
+    # for i in range(0, len(jul_dt), 25):
+    #     batch = jul_dt[i:i+25]
+    #     insert_data('July', 'Detroit', batch, cur, conn)
 
-    for i in range(0, len(sept_dt), 25):
-        batch = sept_dt[i:i+25]
-        insert_data('September', 'Detroit', batch, cur, conn)
+    # for i in range(0, len(sept_dt), 25):
+    #     batch = sept_dt[i:i+25]
+    #     insert_data('September', 'Detroit', batch, cur, conn)
     
-    for i in range(0, len(jan_dt), 25):
-        batch = jan_dt[i:i+25]
-        insert_data('January', 'Detroit', batch, cur, conn)
+    # for i in range(0, len(jan_dt), 25):
+    #     batch = jan_dt[i:i+25]
+    #     insert_data('January', 'Detroit', batch, cur, conn)
 
 
-    # Washington DC
-    for i in range(0, len(may_ny), 25):
-        batch = may_ny[i:i+25]
-        insert_data('May', 'New York', batch, cur, conn)
+    # # Washington DC
+    # for i in range(0, len(may_ny), 25):
+    #     batch = may_ny[i:i+25]
+    #     insert_data('May', 'New York', batch, cur, conn)
     
-    for i in range(0, len(jul_ny), 25):
-        batch = jul_ny[i:i+25]
-        insert_data('July', 'New York', batch, cur, conn)
+    # for i in range(0, len(jul_ny), 25):
+    #     batch = jul_ny[i:i+25]
+    #     insert_data('July', 'New York', batch, cur, conn)
 
-    for i in range(0, len(sept_ny), 25):
-        batch = sept_ny[i:i+25]
-        insert_data('September', 'New York', batch, cur, conn)
+    # for i in range(0, len(sept_ny), 25):
+    #     batch = sept_ny[i:i+25]
+    #     insert_data('September', 'New York', batch, cur, conn)
     
-    for i in range(0, len(jan_ny), 25):
-        batch = jan_ny[i:i+25]
-        insert_data('January', 'New York', batch, cur, conn)
+    # for i in range(0, len(jan_ny), 25):
+    #     batch = jan_ny[i:i+25]
+    #     insert_data('January', 'New York', batch, cur, conn)
 
-    # Dallas
-    for i in range(0, len(may_dl), 25):
-        batch = may_dl[i:i+25]
-        insert_data('May', 'Dallas', batch, cur, conn)
+    # # Dallas
+    # for i in range(0, len(may_dl), 25):
+    #     batch = may_dl[i:i+25]
+    #     insert_data('May', 'Dallas', batch, cur, conn)
     
-    for i in range(0, len(jul_dl), 25):
-        batch = jul_dl[i:i+25]
-        insert_data('July', 'Dallas', batch, cur, conn)
+    # for i in range(0, len(jul_dl), 25):
+    #     batch = jul_dl[i:i+25]
+    #     insert_data('July', 'Dallas', batch, cur, conn)
 
-    for i in range(0, len(sept_dl), 25):
-        batch = sept_dl[i:i+25]
-        insert_data('September', 'Dallas', batch, cur, conn)
+    # for i in range(0, len(sept_dl), 25):
+    #     batch = sept_dl[i:i+25]
+    #     insert_data('September', 'Dallas', batch, cur, conn)
     
-    for i in range(0, len(jan_dl), 25):
-        batch = jan_dl[i:i+25]
-        insert_data('January', 'Dallas', batch, cur, conn)
-
-    # Pontiac
-    # for i in range(0, len(may_pc), 25):
-    #     batch = may_pc[i:i+25]
-    #     insert_data('may', 'Pontiac', batch, cur, conn)
-    
-    # for i in range(0, len(jul_pc), 25):
-    #     batch = jul_pc[i:i+25]
-    #     insert_data('july', 'Pontiac', batch, cur, conn)
-    
-    # for i in range(0, len(sept_pc), 25):
-    #     batch = sept_pc[i:i+25]
-    #     insert_data('september', 'Pontiac', batch, cur, conn)
-    
-    # for i in range(0, len(jan_pc), 25):
-    #     batch = jan_pc[i:i+25]
-    #     insert_data('january', 'Pontiac', batch, cur, conn)
+    # for i in range(0, len(jan_dl), 25):
+    #     batch = jan_dl[i:i+25]
+    #     insert_data('January', 'Dallas', batch, cur, conn)
 
     print("API data successfully inserted into database.\n")
     
