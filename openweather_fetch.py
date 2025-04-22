@@ -242,6 +242,7 @@ def main():
     dl_geocode = get_geocode('Dallas')
     print("Geocodes created.\n")
 
+    # Load in data for different cities
     may_sf = get_may_data(sf_geocode[0], sf_geocode[1])
     jul_sf = get_july_data(sf_geocode[0], sf_geocode[1])
     sept_sf = get_september_data(sf_geocode[0], sf_geocode[1])
@@ -266,7 +267,7 @@ def main():
     jan_dl = get_january_data(dl_geocode[0], dl_geocode[1])
     print("Dallas API data loaded.\n")
 
-
+    # Connect to and populate database
     conn = sqlite3.connect('FoodRecall.db')
     cur = conn.cursor()
     print("Database connection established.\n")
